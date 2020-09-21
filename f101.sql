@@ -28,12 +28,13 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   13:18 Saturday September 19, 2020
+--   Date and Time:   20:57 Monday September 21, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
 --     Pages:                      7
---       Items:                   24
+--       Items:                   25
+--       Computations:             1
 --       Processes:                6
 --       Regions:                 23
 --       Buttons:                  3
@@ -100,6 +101,8 @@ wwv_flow_api.create_flow(
 ,p_authentication=>'PLUGIN'
 ,p_authentication_id=>wwv_flow_api.id(38667525158734978211)
 ,p_application_tab_set=>1
+,p_logo_type=>'T'
+,p_logo_text=>'IMS'
 ,p_app_builder_icon_name=>'app-icon.svg'
 ,p_proxy_server=>nvl(wwv_flow_application_install.get_proxy,'')
 ,p_no_proxy_domains=>nvl(wwv_flow_application_install.get_no_proxy_domains,'')
@@ -116,7 +119,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200919131749'
+,p_last_upd_yyyymmddhh24miss=>'20200921205600'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>9
 ,p_ui_type_name => null
@@ -13238,7 +13241,10 @@ wwv_flow_api.create_page(
 '    display: block;',
 '    font-weight: bold !important; /* Make Region Display Selector tab title bold */',
 '    text-align: center;',
+'}',
 '',
+'div.t-TabsRegion-items > div > div.apex-rds-hover.right{',
+'    display: none !important;',
 '}',
 ''))
 ,p_page_template_options=>'#DEFAULT#'
@@ -13279,15 +13285,15 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200919131749'
+,p_last_upd_yyyymmddhh24miss=>'20200921205600'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(1375693481253645)
 ,p_plug_name=>'Tree Search'
-,p_region_template_options=>'#DEFAULT#:i-h480:t-Region--removeHeader:t-Region--scrollBody'
+,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--scrollBody'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
 ,p_plug_display_sequence=>30
-,p_plug_grid_column_span=>2
+,p_plug_grid_column_span=>3
 ,p_plug_display_point=>'BODY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
@@ -13303,51 +13309,76 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'WITH pat_tests AS(',
+'  SELECT req.pat_key,',
+'         req.req_name,',
+'         req.req_collected_date,',
+'         rqt.rqt_rank,',
+'         rqt.rqt_sitetype,',
+'         rqt.resulting_opr_key,',
+'         td.td_name',
+'    FROM ilms5.request@apex_link           req,',
+'         ilms5.request_test@apex_link      rqt,',
+'         ilms5.test_detail@apex_link       td',
+'   WHERE req.req_key = rqt.req_key',
+'     AND rqt.td_key = td.td_key',
+'     AND rqt.parent_rqt_key IS NULL',
+'     AND req.pat_key = :P1_PAT_KEY--1611964',
+' --where req_name like ''20191204%''',
+'),pat_tests_tree AS (',
+'SELECT   ',
+'        ''PARENT'' AS ITEM_TYPE,',
+'        to_number(to_char(req_collected_date,''YYYYMMDD'')) AS ID,        ',
+'        to_char(req_collected_date,''DD/MM/YYYY'') AS TITLE,',
+'        0 AS PARENT_ID,    ',
+'        trunc(req_collected_date) AS req_collected_date',
+'FROM pat_tests        ',
+'UNION ',
+'SELECT ''CHILD'' AS ITEM_TYPE,        ',
+'       to_number(to_char(req_collected_date,''YYYYMMDDHH24MISS'')) AS ID,        ',
+'       to_char(req_collected_date,''HH24:MI YYYYMMDD '')|| listagg(DISTINCT td_name,'' '')   within GROUP(ORDER BY rqt_rank) AS TITLE,',
+'       to_number(to_char(req_collected_date,''YYYYMMDD''))  AS PARENT_ID,',
+'       req_collected_date',
+'FROM pat_tests ',
+'group by req_collected_date',
+')',
 'SELECT ',
-'/* REQUIRED - positive number id of the element (should start with 1 or higher) */',
-'     ROWNUM AS ID,',
-'/* REQUIRED - positive number id of the parent (top parent should be 0) */',
+'  /* REQUIRED - positive number id of the element (should start with 1 or higher) */',
+'    ID,',
+'    /* REQUIRED - positive number id of the parent (top parent should be 0) */',
+'     PARENT_ID,',
+'    /* REQUIRED - title of the item */',
+'    TITLE AS TITLE,/* tooltip for the item */',
+'    /* REQUIRED when use select function - is set to items when selected */',
+'     TITLE AS VALUE,',
+'    /* REQUIRED when use select function - is mapping value for typeSettings in config json */',
 '     CASE',
-'         WHEN ROWNUM <= 2 THEN 0',
-'         ELSE ROUND( ROWNUM / 6 )',
-'     END AS PARENT_ID,',
-'/* REQUIRED - title of the item */',
-'     ''Item '' || ROWNUM AS TITLE,/* tooltip for the item */',
-'/* REQUIRED when use select function - is set to items when selected */',
-'     ''FZ''||ROWNUM AS VALUE,',
-'/* REQUIRED when use select function - is mapping value for typeSettings in config json */',
-'     CASE',
-'         WHEN ROWNUM <= 8 THEN',
-'             10',
+'         WHEN ITEM_TYPE = ''PARENT'' THEN 10',
 '         ELSE 20',
 '     END AS TYPE,',
-'/* Optional - set tooltip for this item */',
-'     ''This is item '' || ROWNUM AS TOOLTIP,',
-'/* Optional - set custom icon for item */',
+'    /* Optional - set tooltip for this item */',
+'     TITLE AS TOOLTIP,',
+'    /* Optional - set custom icon for item */',
 '     CASE',
-'         WHEN ROWNUM <= 8 THEN',
-'             ''fa fa-folder-o''',
+'         WHEN ITEM_TYPE = ''PARENT'' THEN ''fa fa-folder-o''',
 '         ELSE ''fa fa-file-o''',
 '     END AS ICON,',
-'/* Optional - set which nodes should be selcted on load (0 or null - not selected; 1 - selected)*/',
-'     NULL SELECTED,',
-'/* Optional - set if this item is expanded or not (0 or null - not expanded; 1 - expanded)*/',
-'     CASE',
-'         WHEN ROWNUM IN(1,2) THEN 1',
-'		 ELSE NULL',
-'     END  EXPANDED,',
-'/* Optional - enable or disable checkbox for this item (0 or null - no checkbox; 1 - checkbox)*/',
-'     NULL AS CHECKBOX,',
-'/* Optional - used to set item read only (0 or null - selectable; 1 - unselectable)*/',
+'    /* Optional - set which nodes should be selcted on load (0 or null - not selected; 1 - selected)*/',
+'     0 AS SELECTED,',
+'    /* Optional - set if this item is expanded or not (0 or null - not expanded; 1 - expanded)*/',
+'     0 EXPANDED,',
+'    /* Optional - enable or disable checkbox for this item (0 or null - no checkbox; 1 - checkbox)*/',
+'     0 AS CHECKBOX,',
+'    /* Optional - used to set item read only (0 or null - selectable; 1 - unselectable)*/',
 '     0 AS UNSELECTABLE',
-'/* activate link on click of the node */',
-'     ,''javascript:$s("P1_TREE_LINK_KEY", "''|| ''FZ''||ROWNUM||''")'' AS LINK',
-' FROM',
-'     DUAL',
-' CONNECT BY',
-'     ROWNUM <= 30'))
+'    /* activate link on click of the node */',
+'   ,''javascript:$s("P1_TREE_LINK_KEY", "''|| TITLE||''")'' AS LINK',
+'FROM pat_tests_tree',
+'start with parent_id = ''0''',
+'connect by prior id = PARENT_ID',
+'order siblings by req_collected_date DESC'))
 ,p_plug_source_type=>'PLUGIN_APEX.FANCYTREE.SELECT'
-,p_ajax_items_to_submit=>'P1_TREE_SEARCH'
+,p_ajax_items_to_submit=>'P1_TREE_SEARCH,P1_PAT_KEY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '{',
@@ -13400,15 +13431,45 @@ wwv_flow_api.create_page_plug(
 ,p_plug_template=>wwv_flow_api.id(38667562498193978238)
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
+,p_query_type=>'SQL'
+,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT p.pat_name      AS mrn,',
+'       pernm.pen_full_name,',
+'       per.per_dob,',
+'       trunc(months_between(sysdate,per.per_dob)/ 12)|| '' y ''|| mod(trunc(months_between(sysdate,per.per_dob)),12)|| '' m'' AS age,',
+'       p.pat_key,',
+'       rce.rce_name    AS race,',
+'       Initcap(gen.gen_name)    AS gender,       ',
+'       hsp.hsp_name',
+'  FROM patient@apex_link        p,',
+'       person@apex_link         per,',
+'       person_name@apex_link    pernm,',
+'       race@apex_link           rce,',
+'       gender@apex_link         gen,',
+'       ward@apex_link           ward,',
+'       hospital@apex_link       hsp',
+' WHERE p.pat_key = per.per_key',
+'   AND per.per_key = pernm.per_key',
+'   AND pernm.imt_dateinactive IS NULL',
+'   AND p.rce_key = rce.rce_key',
+'   AND rce.imt_dateinactive IS NULL',
+'   AND gen.gen_key = p.gen_key',
+'   AND gen.imt_dateinactive IS NULL',
+'   AND p.wrd_key = ward.wrd_key',
+'   AND ward.imt_dateinactive IS NULL',
+'   AND ward.hsp_key = hsp.hsp_key',
+'   AND hsp.imt_dateinactive IS NULL',
+''))
+,p_is_editable=>false
+,p_plug_source_type=>'NATIVE_FORM'
+,p_ajax_items_to_submit=>'P1_MRN'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_attribute_01=>'N'
-,p_attribute_02=>'HTML'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(1376133361253650)
 ,p_plug_name=>'Patient'
 ,p_parent_plug_id=>wwv_flow_api.id(1375754089253646)
-,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--noBorder:t-Region--scrollBody:t-Form--xlarge:t-Form--leftLabels:margin-bottom-none:margin-left-none'
+,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--noBorder:t-Region--hiddenOverflow:t-Form--xlarge:t-Form--leftLabels:margin-bottom-none:margin-left-none'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
 ,p_plug_display_sequence=>20
 ,p_plug_new_grid_row=>false
@@ -13421,7 +13482,7 @@ wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2004487208350811)
 ,p_plug_name=>'Additional Info'
 ,p_parent_plug_id=>wwv_flow_api.id(1375754089253646)
-,p_region_template_options=>'#DEFAULT#:t-Region--noPadding:t-Region--removeHeader:t-Region--scrollBody:t-Form--xlarge:t-Form--leftLabels:margin-top-none:margin-bottom-none'
+,p_region_template_options=>'#DEFAULT#:t-Region--noPadding:t-Region--removeHeader:t-Region--hiddenOverflow:t-Form--xlarge:t-Form--leftLabels:margin-top-none:margin-bottom-none'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
 ,p_plug_display_sequence=>40
 ,p_plug_display_point=>'BODY'
@@ -13432,7 +13493,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2007766020350844)
 ,p_plug_name=>'RDS Container'
-,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--scrollBody'
+,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--hiddenOverflow'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
 ,p_plug_display_sequence=>40
 ,p_plug_new_grid_row=>false
@@ -13446,7 +13507,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_name=>'RDS'
 ,p_parent_plug_id=>wwv_flow_api.id(2007766020350844)
 ,p_region_css_classes=>'rds_region'
-,p_region_template_options=>'#DEFAULT#:js-useLocalStorage:t-TabsRegion-mod--fillLabels:t-TabsRegion-mod--simple'
+,p_region_template_options=>'#DEFAULT#:js-useLocalStorage:t-TabsRegion-mod--simple'
 ,p_plug_template=>wwv_flow_api.id(38667586293836978255)
 ,p_plug_display_sequence=>10
 ,p_include_in_reg_disp_sel_yn=>'Y'
@@ -13464,7 +13525,7 @@ wwv_flow_api.create_page_plug(
 ,p_region_name=>'clinical_notes_rn'
 ,p_parent_plug_id=>wwv_flow_api.id(2007766020350844)
 ,p_region_css_classes=>'rds_tab'
-,p_region_template_options=>'#DEFAULT#:js-showMaximizeButton:t-Region--scrollBody'
+,p_region_template_options=>'#DEFAULT#:js-showMaximizeButton:t-Region--hiddenOverflow'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
 ,p_plug_display_sequence=>20
 ,p_include_in_reg_disp_sel_yn=>'Y'
@@ -13478,7 +13539,8 @@ wwv_flow_api.create_page_plug(
 ,p_plug_name=>'Cytology'
 ,p_region_name=>'cytology_rn'
 ,p_parent_plug_id=>wwv_flow_api.id(2007766020350844)
-,p_region_template_options=>'#DEFAULT#:js-showMaximizeButton:t-Region--scrollBody'
+,p_region_css_classes=>'rds_tab'
+,p_region_template_options=>'#DEFAULT#:js-showMaximizeButton:t-Region--hiddenOverflow'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
 ,p_plug_display_sequence=>50
 ,p_include_in_reg_disp_sel_yn=>'Y'
@@ -13740,7 +13802,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_name=>'Cytology Report Text'
 ,p_region_name=>'cytology_rpt_text_rn'
 ,p_parent_plug_id=>wwv_flow_api.id(2007480007350841)
-,p_region_template_options=>'#DEFAULT#:t-Region--noPadding:t-Region--removeHeader:t-Region--scrollBody'
+,p_region_template_options=>'#DEFAULT#:t-Region--noPadding:t-Region--removeHeader:t-Region--hiddenOverflow'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
@@ -13754,7 +13816,7 @@ wwv_flow_api.create_page_plug(
 ,p_region_name=>'virology_rn'
 ,p_parent_plug_id=>wwv_flow_api.id(2007766020350844)
 ,p_region_css_classes=>'rds_tab'
-,p_region_template_options=>'#DEFAULT#:js-showMaximizeButton:t-Region--scrollBody'
+,p_region_template_options=>'#DEFAULT#:js-showMaximizeButton:t-Region--hiddenOverflow'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
 ,p_plug_display_sequence=>60
 ,p_include_in_reg_disp_sel_yn=>'Y'
@@ -13769,7 +13831,7 @@ wwv_flow_api.create_page_plug(
 ,p_region_name=>'microbiology_rn'
 ,p_parent_plug_id=>wwv_flow_api.id(2007766020350844)
 ,p_region_css_classes=>'rds_tab'
-,p_region_template_options=>'#DEFAULT#:js-showMaximizeButton:t-Region--scrollBody'
+,p_region_template_options=>'#DEFAULT#:js-showMaximizeButton:t-Region--hiddenOverflow'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
 ,p_plug_display_sequence=>70
 ,p_include_in_reg_disp_sel_yn=>'Y'
@@ -13780,7 +13842,7 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2007873015350845)
-,p_plug_name=>'Chemical Pathology'
+,p_plug_name=>'Chemical<br/>Pathology'
 ,p_region_name=>'chemical_pathology_rn'
 ,p_parent_plug_id=>wwv_flow_api.id(2007766020350844)
 ,p_region_css_classes=>'rds_tab'
@@ -13854,12 +13916,14 @@ wwv_flow_api.create_page_plug(
 ,p_plug_source_type=>'NATIVE_IG'
 ,p_ajax_items_to_submit=>'P1_TREE_LINK_KEY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_prn_content_disposition=>'ATTACHMENT'
+,p_prn_document_header=>'APEX'
 ,p_prn_units=>'INCHES'
 ,p_prn_paper_size=>'LETTER'
 ,p_prn_width=>11
 ,p_prn_height=>8.5
 ,p_prn_orientation=>'HORIZONTAL'
-,p_prn_page_header=>'Chemical Pathology'
+,p_prn_page_header=>'Chemical<br/>Pathology'
 ,p_prn_page_header_font_color=>'#000000'
 ,p_prn_page_header_font_family=>'Helvetica'
 ,p_prn_page_header_font_weight=>'normal'
@@ -14164,6 +14228,9 @@ wwv_flow_api.create_ig_report_column(
 ,p_is_visible=>true
 ,p_is_frozen=>false
 );
+end;
+/
+begin
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(2149659864194564)
 ,p_view_id=>wwv_flow_api.id(2138920719163618)
@@ -14289,9 +14356,6 @@ wwv_flow_api.create_page_plug(
 ,p_ajax_items_to_submit=>'P1_TREE_LINK_KEY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 );
-end;
-/
-begin
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(2145284230194427)
 ,p_name=>'TITLE'
@@ -14528,7 +14592,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>true
-,p_pagination_type=>'SCROLL'
+,p_pagination_type=>'SET'
 ,p_show_total_row_count=>true
 ,p_show_toolbar=>true
 ,p_enable_save_public_report=>false
@@ -14666,16 +14730,20 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(1375944998253648)
 ,p_name=>'P1_MRN'
+,p_source_data_type=>'VARCHAR2'
+,p_is_primary_key=>true
 ,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(1376133361253650)
+,p_item_source_plug_id=>wwv_flow_api.id(1375754089253646)
 ,p_prompt=>'MRN:'
-,p_source=>'XXX'
-,p_source_type=>'STATIC'
+,p_source=>'MRN'
+,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
 ,p_colspan=>3
 ,p_grid_label_column_span=>1
 ,p_field_template=>wwv_flow_api.id(38667640278257978295)
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs:t-Form-fieldContainer--xlarge'
+,p_is_persistent=>'N'
 ,p_attribute_01=>'Y'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
@@ -14683,17 +14751,20 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(2003536863350802)
 ,p_name=>'P1_NAME'
+,p_source_data_type=>'VARCHAR2'
 ,p_item_sequence=>20
 ,p_item_plug_id=>wwv_flow_api.id(1376133361253650)
+,p_item_source_plug_id=>wwv_flow_api.id(1375754089253646)
 ,p_prompt=>'Name:'
-,p_source=>'xxx'
-,p_source_type=>'STATIC'
+,p_source=>'PEN_FULL_NAME'
+,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
 ,p_begin_on_new_line=>'N'
 ,p_colspan=>6
 ,p_grid_label_column_span=>1
 ,p_field_template=>wwv_flow_api.id(38667640278257978295)
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs:t-Form-fieldContainer--xlarge'
+,p_is_persistent=>'N'
 ,p_attribute_01=>'Y'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
@@ -14717,16 +14788,19 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(2003716889350804)
 ,p_name=>'P1_DOB'
+,p_source_data_type=>'DATE'
 ,p_item_sequence=>50
 ,p_item_plug_id=>wwv_flow_api.id(1376133361253650)
+,p_item_source_plug_id=>wwv_flow_api.id(1375754089253646)
 ,p_prompt=>'Date of Birth:'
-,p_source=>'xxx'
-,p_source_type=>'STATIC'
+,p_source=>'PER_DOB'
+,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
 ,p_begin_on_new_line=>'N'
 ,p_grid_label_column_span=>1
 ,p_field_template=>wwv_flow_api.id(38667640278257978295)
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs:t-Form-fieldContainer--xlarge'
+,p_is_persistent=>'N'
 ,p_attribute_01=>'Y'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
@@ -14734,16 +14808,19 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(2003861752350805)
 ,p_name=>'P1_AGE'
+,p_source_data_type=>'VARCHAR2'
 ,p_item_sequence=>60
 ,p_item_plug_id=>wwv_flow_api.id(1376133361253650)
+,p_item_source_plug_id=>wwv_flow_api.id(1375754089253646)
 ,p_prompt=>'Age:'
-,p_source=>'xxx'
-,p_source_type=>'STATIC'
+,p_source=>'AGE'
+,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
 ,p_begin_on_new_line=>'N'
 ,p_grid_label_column_span=>1
 ,p_field_template=>wwv_flow_api.id(38667640278257978295)
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs:t-Form-fieldContainer--xlarge'
+,p_is_persistent=>'N'
 ,p_attribute_01=>'Y'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
@@ -14751,16 +14828,19 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(2003929518350806)
 ,p_name=>'P1_RACE'
+,p_source_data_type=>'VARCHAR2'
 ,p_item_sequence=>70
 ,p_item_plug_id=>wwv_flow_api.id(1376133361253650)
+,p_item_source_plug_id=>wwv_flow_api.id(1375754089253646)
 ,p_prompt=>'Race:'
-,p_source=>'xxx'
-,p_source_type=>'STATIC'
+,p_source=>'RACE'
+,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
 ,p_begin_on_new_line=>'N'
 ,p_grid_label_column_span=>1
 ,p_field_template=>wwv_flow_api.id(38667640278257978295)
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs:t-Form-fieldContainer--xlarge'
+,p_is_persistent=>'N'
 ,p_attribute_01=>'Y'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
@@ -14768,33 +14848,19 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(2004023589350807)
 ,p_name=>'P1_GENDER'
+,p_source_data_type=>'VARCHAR2'
 ,p_item_sequence=>80
 ,p_item_plug_id=>wwv_flow_api.id(1376133361253650)
+,p_item_source_plug_id=>wwv_flow_api.id(1375754089253646)
 ,p_prompt=>'Gender:'
-,p_source=>'xxx'
-,p_source_type=>'STATIC'
+,p_source=>'GENDER'
+,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
 ,p_colspan=>3
 ,p_grid_label_column_span=>1
 ,p_field_template=>wwv_flow_api.id(38667640278257978295)
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs:t-Form-fieldContainer--xlarge'
-,p_attribute_01=>'Y'
-,p_attribute_02=>'VALUE'
-,p_attribute_04=>'Y'
-);
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(2004133514350808)
-,p_name=>'P1_LOCATION'
-,p_item_sequence=>90
-,p_item_plug_id=>wwv_flow_api.id(1376133361253650)
-,p_prompt=>'Location:'
-,p_source=>'xxx'
-,p_source_type=>'STATIC'
-,p_display_as=>'NATIVE_DISPLAY_ONLY'
-,p_begin_on_new_line=>'N'
-,p_grid_label_column_span=>1
-,p_field_template=>wwv_flow_api.id(38667640278257978295)
-,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs:t-Form-fieldContainer--xlarge'
+,p_is_persistent=>'N'
 ,p_attribute_01=>'Y'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
@@ -14820,7 +14886,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(2004553981350812)
 ,p_name=>'P1_PATIENT_HISTORY'
-,p_item_sequence=>10
+,p_item_sequence=>20
 ,p_item_plug_id=>wwv_flow_api.id(2004487208350811)
 ,p_prompt=>'Patient History:'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
@@ -14834,7 +14900,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(2004689601350813)
 ,p_name=>'P1_ALLERGY'
-,p_item_sequence=>20
+,p_item_sequence=>30
 ,p_item_plug_id=>wwv_flow_api.id(2004487208350811)
 ,p_prompt=>'Allergy:'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
@@ -14848,7 +14914,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(2004707358350814)
 ,p_name=>'P1_ALERT'
-,p_item_sequence=>30
+,p_item_sequence=>40
 ,p_item_plug_id=>wwv_flow_api.id(2004487208350811)
 ,p_prompt=>'Alert:'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
@@ -14862,7 +14928,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(2004862493350815)
 ,p_name=>'P1_IMMUNISATION'
-,p_item_sequence=>40
+,p_item_sequence=>50
 ,p_item_plug_id=>wwv_flow_api.id(2004487208350811)
 ,p_prompt=>'Immunisation:'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
@@ -14920,6 +14986,47 @@ wwv_flow_api.create_page_item(
 '}'))
 ,p_attribute_03=>'N'
 );
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(6319607878659224)
+,p_name=>'P1_HSP_NAME'
+,p_source_data_type=>'VARCHAR2'
+,p_item_sequence=>90
+,p_item_plug_id=>wwv_flow_api.id(1376133361253650)
+,p_item_source_plug_id=>wwv_flow_api.id(1375754089253646)
+,p_prompt=>'Hsp Name'
+,p_source=>'HSP_NAME'
+,p_source_type=>'REGION_SOURCE_COLUMN'
+,p_display_as=>'NATIVE_DISPLAY_ONLY'
+,p_begin_on_new_line=>'N'
+,p_grid_label_column_span=>1
+,p_field_template=>wwv_flow_api.id(38667640278257978295)
+,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs:t-Form-fieldContainer--xlarge'
+,p_is_persistent=>'N'
+,p_attribute_01=>'Y'
+,p_attribute_02=>'VALUE'
+,p_attribute_04=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(6320134438659229)
+,p_name=>'P1_PAT_KEY'
+,p_source_data_type=>'NUMBER'
+,p_item_sequence=>10
+,p_item_plug_id=>wwv_flow_api.id(1375754089253646)
+,p_item_source_plug_id=>wwv_flow_api.id(1375754089253646)
+,p_source=>'PAT_KEY'
+,p_source_type=>'REGION_SOURCE_COLUMN'
+,p_display_as=>'NATIVE_HIDDEN'
+,p_is_persistent=>'N'
+,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_computation(
+ p_id=>wwv_flow_api.id(6319973078659227)
+,p_computation_sequence=>10
+,p_computation_item=>'P1_MRN'
+,p_computation_point=>'BEFORE_HEADER'
+,p_computation_type=>'STATIC_ASSIGNMENT'
+,p_computation=>'DEMO'
+);
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(38675959306265193550)
 ,p_name=>'When Page Load'
@@ -14938,13 +15045,35 @@ wwv_flow_api.create_page_da_action(
 ,p_affected_button_id=>wwv_flow_api.id(1375291518253641)
 ,p_attribute_01=>'P1_TREE_SEARCH'
 );
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(2147437314194449)
+,p_event_id=>wwv_flow_api.id(38675959306265193550)
+,p_event_result=>'TRUE'
+,p_action_sequence=>20
+,p_execute_on_page_init=>'Y'
+,p_action=>'NATIVE_HIDE'
+,p_affected_elements_type=>'REGION'
+,p_affected_region_id=>wwv_flow_api.id(2146625501194441)
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(6205176062554401)
+,p_event_id=>wwv_flow_api.id(38675959306265193550)
+,p_event_result=>'TRUE'
+,p_action_sequence=>30
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_JAVASCRIPT_CODE'
+,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'// set title  chemical_pathology_rn_heading',
+'$("#chemical_pathology_rn_heading").text("Chemical Pathology");'))
+);
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(1374138824253630)
 ,p_name=>'When Click View Comments'
 ,p_event_sequence=>20
 ,p_triggering_element_type=>'JQUERY_SELECTOR'
 ,p_triggering_element=>'.view_comments'
-,p_bind_type=>'bind'
+,p_bind_type=>'live'
+,p_bind_delegate_to_selector=>'#clinical_notes_rn,#chemical_pathology_rn,#haematology_rn,#cytology_rn,#virology_rn,#microbiology_rn'
 ,p_bind_event_type=>'click'
 );
 wwv_flow_api.create_page_da_action(
@@ -14963,7 +15092,8 @@ wwv_flow_api.create_page_da_event(
 ,p_event_sequence=>30
 ,p_triggering_element_type=>'JQUERY_SELECTOR'
 ,p_triggering_element=>'.view_cumulative'
-,p_bind_type=>'bind'
+,p_bind_type=>'live'
+,p_bind_delegate_to_selector=>'#clinical_notes_rn,#chemical_pathology_rn,#haematology_rn,#cytology_rn,#virology_rn,#microbiology_rn'
 ,p_bind_event_type=>'click'
 );
 wwv_flow_api.create_page_da_action(
@@ -14989,7 +15119,8 @@ wwv_flow_api.create_page_da_event(
 ,p_event_sequence=>40
 ,p_triggering_element_type=>'JQUERY_SELECTOR'
 ,p_triggering_element=>'.view_report'
-,p_bind_type=>'bind'
+,p_bind_type=>'live'
+,p_bind_delegate_to_selector=>'#clinical_notes_rn,#chemical_pathology_rn,#haematology_rn,#cytology_rn,#virology_rn,#microbiology_rn'
 ,p_bind_event_type=>'click'
 );
 wwv_flow_api.create_page_da_action(
@@ -15025,15 +15156,15 @@ wwv_flow_api.create_page_da_action(
 ,p_execute_on_page_init=>'N'
 ,p_action=>'NATIVE_JAVASCRIPT_CODE'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'/*',
+'',
 'apex.region("clinical_notes_rn").refresh();',
 'apex.region("chemical_pathology_rn").refresh();',
 'apex.region("haematology_rn").refresh();',
 'apex.region("cytology_rn").refresh();',
 'apex.region("virology_rn").refresh();',
 'apex.region("microbiology_rn").refresh();',
-'*/',
 '',
+'/* Everytime region type is changed, the class is blown away.  have to re-do it',
 'var rds_tabs = $(".rds_tab"); // tab regions have custom class rds_tab',
 'if (rds_tabs != undefined){',
 '    console.log("rds defined", rds_tabs.length);',
@@ -15044,7 +15175,8 @@ wwv_flow_api.create_page_da_action(
 '    }',
 '}else{',
 '    console.log("rds undefined");',
-'}'))
+'}',
+'*/'))
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(2146709233194442)
@@ -15077,7 +15209,15 @@ wwv_flow_api.create_page_da_action(
 '        console.log("reportText",reportText);',
 '',
 '        apex.item("P1_CYTOLOGY_RPT_TEXT").setValue(reportText);',
-'apex.region("cytology_rpt_text_rn").refresh();'))
+'',
+'        apex.region("cytology_rpt_text_rn").refresh();',
+'	',
+'        if (reportText != undefined){',
+'            $("#cytology_rpt_text_rn").show();    ',
+'        }',
+'        ',
+'',
+'        '))
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(2147211560194447)
@@ -15099,49 +15239,12 @@ wwv_flow_api.create_page_da_action(
 ,p_affected_elements=>'P1_TREE_SEARCH'
 );
 wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(2004251078350809)
+ p_id=>wwv_flow_api.id(2147516799194450)
 ,p_process_sequence=>10
 ,p_process_point=>'AFTER_HEADER'
-,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'Set Item Value'
-,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'DECLARE',
-'    CURSOR cur_patien_info IS',
-'        SELECT  ''A0004689'' AS MRN,          ',
-'                ''AB POS'' AS POS,',
-'                ''Citizen John'' AS NAME,',
-'                ''16188288'' AS NIC,',
-'                ''14/08/1999'' AS DOB,',
-'                ''20 y 10m'' AS AGE,',
-'                ''Asian'' AS RACE,',
-'                ''Male'' AS GENDER,',
-'                ''Ward B (Brisbane Central Hospical)'' AS LOCATION,',
-'                ''Diabetic'' AS PATIENT_HISTORY,',
-'                ''Peanut'' AS ALLERGY,',
-'                ''Hep B'' AS ALERT,',
-'                ''Hep B, Influenza, Pneumococcal'' AS IMMUNISATION',
-'        FROM dual;                ',
-'BEGIN',
-'    FOR rec_patien_info IN cur_patien_info LOOP',
-'        :P1_MRN := rec_patien_info.MRN;',
-'        :P1_POS := rec_patien_info.POS;',
-'        :P1_NAME := rec_patien_info.NAME;',
-'        :P1_NIC := rec_patien_info.NIC;',
-'        :P1_DOB := rec_patien_info.DOB;',
-'        :P1_AGE := rec_patien_info.AGE;',
-'        :P1_RACE := rec_patien_info.RACE;',
-'        :P1_GENDER := rec_patien_info.GENDER;',
-'        :P1_LOCATION := rec_patien_info.LOCATION;',
-'        --',
-'        :P1_PATIENT_HISTORY := rec_patien_info.PATIENT_HISTORY;',
-'        :P1_ALLERGY := rec_patien_info.ALLERGY;',
-'        :P1_ALERT := rec_patien_info.ALERT;',
-'        :P1_IMMUNISATION := rec_patien_info.IMMUNISATION;',
-'        ',
-'    END LOOP;',
-'    ',
-'END;',
-''))
+,p_region_id=>wwv_flow_api.id(1375754089253646)
+,p_process_type=>'NATIVE_FORM_INIT'
+,p_process_name=>'Initialize form Summary'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );
 end;
