@@ -28,13 +28,12 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   09:23 Saturday September 26, 2020
+--   Date and Time:   19:09 Saturday September 26, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
 --     Pages:                     10
---       Items:                   51
---       Computations:             1
+--       Items:                   50
 --       Processes:                7
 --       Regions:                 33
 --       Buttons:                  5
@@ -117,7 +116,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200926092241'
+,p_last_upd_yyyymmddhh24miss=>'20200926190545'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>9
 ,p_ui_type_name => null
@@ -13209,7 +13208,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_protection_level=>'D'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200925152723'
+,p_last_upd_yyyymmddhh24miss=>'20200926184621'
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(6624552983017635)
@@ -13577,6 +13576,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>true
+,p_fixed_row_height=>true
 ,p_pagination_type=>'SCROLL'
 ,p_show_total_row_count=>true
 ,p_show_toolbar=>true
@@ -14096,22 +14096,38 @@ wwv_flow_api.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_javascript_code_onload=>'$("#rgnSticky").stickyWidget({toggleWidth:true});'
 ,p_inline_css=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'th#COMMENTS,td[headers=COMMENTS]{',
+'',
+'th#DPT_NAME,td[headers=DPT_NAME]{',
+'  width:200px;  ',
+'}',
+'',
+'',
+'th#TD_NAME,td[headers=TD_NAME]{',
+'  width:200px;  ',
+'}',
+'',
+'th#RESULT,td[headers=RESULT]{',
+'  width:300px;  ',
+'}',
+'',
+'th#RANGE,td[headers=RANGE]{',
+'  width:200px;  ',
+'}',
+'',
+'th#UNIT,td[headers=UNIT]{',
+'  width:150px;  ',
+'}',
+'',
+'th#COMMENTS,td[headers=COMMENTS],th#CUMULATIVE,td[headers=CUMULATIVE],th#REPORT,td[headers=REPORT],th#ABN,td[headers=ABN]',
+'{',
 '  width:40px;',
 '}',
 '',
-'th#CUMULATIVE,td[headers=CUMULATIVE]{',
-'  width:40px;',
-'}',
+'.t-Body-contentInner {',
 '',
-'th#REPORT,td[headers=REPORT]{',
-'  width:40px;',
-'}',
-'',
-'th#RESULT_ICON,td[headers=RESULT_ICON]{',
-'  width:40px;',
-'}',
-''))
+'    padding: 0px; !important',
+' ',
+'}'))
 ,p_page_template_options=>'#DEFAULT#'
 ,p_page_comment=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '',
@@ -14150,14 +14166,65 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200926092241'
+,p_last_upd_yyyymmddhh24miss=>'20200926190545'
+);
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(8214826760077506)
+,p_plug_name=>'Patient Info'
+,p_region_name=>'rgnSticky'
+,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--scrollBody:margin-top-none:margin-bottom-none'
+,p_plug_template=>wwv_flow_api.id(38667579460790978250)
+,p_plug_display_sequence=>10
+,p_plug_display_point=>'BODY'
+,p_query_type=>'SQL'
+,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT p.pat_name      AS mrn,',
+'       p.pat_social_sec_num as NIC,',
+'       pernm.pen_full_name,',
+'       per.per_dob,',
+'       trunc(months_between(sysdate,per.per_dob)/ 12)|| '' y ''|| mod(trunc(months_between(sysdate,per.per_dob)),12)|| '' m'' AS age,',
+'       p.pat_key,',
+'       rce.rce_name    AS race,',
+'       Initcap(gen.gen_name)    AS gender,       ',
+'       pra.pra_name || '' ('' || hsp.hsp_name || '')'' AS hsp_name,',
+'       p.PAT_HISTORY,',
+'       b.bgr_description',
+'  FROM patient@apex_link        p,',
+'       person@apex_link         per,',
+'       person_name@apex_link    pernm,',
+'       race@apex_link           rce,',
+'       gender@apex_link         gen,',
+'       practice@apex_link       pra,',
+'       ward@apex_link           ward,',
+'       hospital@apex_link       hsp,',
+'       blood_groups_rh@apex_link b',
+' WHERE p.pat_key = per.per_key',
+'   AND per.per_key = pernm.per_key',
+'   AND pernm.imt_dateinactive IS NULL',
+'   AND p.rce_key = rce.rce_key (+)',
+'   AND rce.imt_dateinactive IS NULL',
+'   AND gen.gen_key = p.gen_key (+)',
+'   AND gen.imt_dateinactive IS NULL',
+'   AND p.wrd_key = ward.wrd_key (+)',
+'   AND ward.wrd_key = pra.pra_key',
+'   AND ward.imt_dateinactive IS NULL',
+'   AND ward.hsp_key = hsp.hsp_key',
+'   AND hsp.imt_dateinactive IS NULL',
+'   AND p.bgr_key = b.bgr_key (+)',
+''))
+,p_is_editable=>false
+,p_plug_source_type=>'NATIVE_FORM'
+,p_ajax_items_to_submit=>'P6_MRN'
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214766152077505)
 ,p_plug_name=>'Tree Search'
+,p_region_name=>'rgnSticky'
+,p_parent_plug_id=>wwv_flow_api.id(8214826760077506)
 ,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--scrollBody'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
-,p_plug_display_sequence=>30
+,p_plug_display_sequence=>50
 ,p_plug_grid_column_span=>3
 ,p_plug_display_point=>'BODY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -14304,59 +14371,10 @@ wwv_flow_api.create_page_plug(
 ,p_attribute_05=>'N'
 );
 wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(8214826760077506)
-,p_plug_name=>'Patient Info'
-,p_region_name=>'rgnSticky'
-,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--scrollBody:margin-top-none'
-,p_plug_template=>wwv_flow_api.id(38667579460790978250)
-,p_plug_display_sequence=>10
-,p_plug_display_point=>'BODY'
-,p_query_type=>'SQL'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'SELECT p.pat_name      AS mrn,',
-'       p.pat_social_sec_num as NIC,',
-'       pernm.pen_full_name,',
-'       per.per_dob,',
-'       trunc(months_between(sysdate,per.per_dob)/ 12)|| '' y ''|| mod(trunc(months_between(sysdate,per.per_dob)),12)|| '' m'' AS age,',
-'       p.pat_key,',
-'       rce.rce_name    AS race,',
-'       Initcap(gen.gen_name)    AS gender,       ',
-'       pra.pra_name || '' ('' || hsp.hsp_name || '')'' AS hsp_name,',
-'       p.PAT_HISTORY,',
-'       b.bgr_description',
-'  FROM patient@apex_link        p,',
-'       person@apex_link         per,',
-'       person_name@apex_link    pernm,',
-'       race@apex_link           rce,',
-'       gender@apex_link         gen,',
-'       practice@apex_link       pra,',
-'       ward@apex_link           ward,',
-'       hospital@apex_link       hsp,',
-'       blood_groups_rh@apex_link b',
-' WHERE p.pat_key = per.per_key',
-'   AND per.per_key = pernm.per_key',
-'   AND pernm.imt_dateinactive IS NULL',
-'   AND p.rce_key = rce.rce_key (+)',
-'   AND rce.imt_dateinactive IS NULL',
-'   AND gen.gen_key = p.gen_key (+)',
-'   AND gen.imt_dateinactive IS NULL',
-'   AND p.wrd_key = ward.wrd_key (+)',
-'   AND ward.wrd_key = pra.pra_key',
-'   AND ward.imt_dateinactive IS NULL',
-'   AND ward.hsp_key = hsp.hsp_key',
-'   AND hsp.imt_dateinactive IS NULL',
-'   AND p.bgr_key = b.bgr_key (+)',
-''))
-,p_is_editable=>false
-,p_plug_source_type=>'NATIVE_FORM'
-,p_ajax_items_to_submit=>'P6_MRN'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-);
-wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8215206032077510)
 ,p_plug_name=>'Patient'
 ,p_parent_plug_id=>wwv_flow_api.id(8214826760077506)
-,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--noBorder:t-Region--hiddenOverflow:t-Form--slimPadding:t-Form--leftLabels:margin-bottom-none:margin-left-none'
+,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--noBorder:t-Region--hiddenOverflow:t-Form--noPadding:t-Form--leftLabels:margin-bottom-none:margin-left-none'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
 ,p_plug_display_sequence=>20
 ,p_plug_display_point=>'BODY'
@@ -14379,9 +14397,10 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8846838691174704)
 ,p_plug_name=>'RDS Container'
+,p_parent_plug_id=>wwv_flow_api.id(8214826760077506)
 ,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--scrollBody'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
-,p_plug_display_sequence=>40
+,p_plug_display_sequence=>60
 ,p_plug_new_grid_row=>false
 ,p_plug_display_point=>'BODY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -14411,7 +14430,7 @@ wwv_flow_api.create_report_region(
 'WHERE REQ_CLINICAL_NOTES  IS NOT NULL',
 'AND pat_key = :P6_PAT_KEY',
 'AND ',
-'    (    (INSTR(:P6_TREE_LINK_KEY,''-'') = 0 AND TO_DATE(:P6_TREE_LINK_KEY,''YYYYMMDDHH24:MI:SS'') = TRUNC(req.req_RELEV_date))',
+'    (    (INSTR(:P6_TREE_LINK_KEY,''-'') = 0 AND :P6_TREE_LINK_KEY = TO_CHAR(req.req_RELEV_date,''YYYYMMDD''))',
 '      OR',
 '         (INSTR(:P6_TREE_LINK_KEY,''-'') >0 AND req.req_key = SUBSTR(:P6_TREE_LINK_KEY,INSTR(:P6_TREE_LINK_KEY,''-'')+1) )',
 '     )',
@@ -14475,59 +14494,85 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'SQL'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select ',
-'       req.req_key,',
-'       req.req_relev_date,',
-'       rqt.rqt_key,',
-'       dpt.dpt_name,',
-'       parent_rqt_key,',
-'       rqt.rqt_rank,',
+'WITH',
+'apex_params AS (',
+'    SELECT  :P6_TREE_PAT_KEY AS PAT_KEY,',
+'            :P6_TREE_LINK_KEY AS TREE_LINK_KEY',
+'    FROM    dual            ',
+'),',
+'request_tests AS (',
+'    SELECT ',
+'            /*+ materialize */',
+'            req.req_key,',
+'            req.req_relev_date,',
+'            rqt.rqt_key,',
+'            dpt.dpt_key,',
+'            dpt.dpt_name,',
+'            parent_rqt_key,',
+'            rqt.rqt_rank,',
+'            rqt.td_key,',
+'            rqt.rqt_desc,',
+'            rqt.abn_key,',
+'            rqt.ref_key',
+'    FROM    ilms5.request@apex_link REQ,',
+'            ilms5.request_test@apex_link rqt,        ',
+'            Department@apex_link dpt,',
+'            apex_params params',
+'    WHERE   req.req_key = rqt.req_key',
+'    AND     rqt.dpt_key = dpt.dpt_key ',
+'    AND     params.pat_key IS NOT NULL AND params.TREE_LINK_KEY IS NOT NULL ',
+'    AND     req.pat_key = params.pat_key',
+'    AND     (    (INSTR(params.TREE_LINK_KEY,''-'') = 0 AND params.TREE_LINK_KEY = TO_CHAR(req.req_RELEV_date,''YYYYMMDD''))',
+'              OR',
+'                 (INSTR(params.TREE_LINK_KEY,''-'') >0 AND req.req_key = SUBSTR(params.TREE_LINK_KEY,INSTR(params.TREE_LINK_KEY,''-'')+1) )',
+'             )',
+'),',
+'hierarchical_rqt AS (',
+'    SELECT  /*+ materialize */ * ',
+'    FROM    request_tests',
+'    START WITH parent_rqt_key IS NULL',
+'    CONNECT BY prior req_key = req_key AND prior rqt_key = parent_rqt_key',
+'    --order siblings by req_RELEV_date DESC',
+')',
+'    ',
+'SELECT',
+'       hrqt.req_key,',
+'       hrqt.req_relev_date,',
+'       hrqt.rqt_key,',
+'       hrqt.dpt_name,',
+'       hrqt.parent_rqt_key,',
+'       hrqt.rqt_rank,',
 '       (CASE ',
-'           WHEN rqt.parent_rqt_key IS NULL THEN td.td_name ',
+'           WHEN hrqt.parent_rqt_key IS NULL THEN td.td_name ',
 '           ELSE ''&nbsp;''||''&nbsp;''||''&nbsp;''||''&nbsp;''||td.td_name ',
 '        END',
-'       )   AS td_name,',
-'       (SELECT abn.abn_text_icon FROM ilms5.abnormality@apex_link abn WHERE abn.abn_key = rqt.abn_key)  AS ABN,',
-'       rqt.rqt_desc AS RESULT,',
-'       (SELECT ref_report FROM ilms5.reference@apex_link WHERE ref_key = rqt.ref_key AND td_key = td.td_key) AS RANGE,',
+'       )   AS td_name,       ',
+'       (SELECT TRIM(abn.abn_text_icon) FROM ilms5.abnormality@apex_link abn WHERE abn.abn_key = hrqt.abn_key)  AS ABN,',
+'       hrqt.rqt_desc AS RESULT,',
+'       (SELECT ref_report FROM ilms5.reference@apex_link WHERE ref_key = hrqt.ref_key AND td_key = td.td_key) AS RANGE,',
 '       (SELECT tu.tu_name FROM ilms5.test_unit@apex_link tu WHERE tu.tu_key = td.tu_key) AS UNIT,',
 '       (CASE ',
-'           WHEN  EXISTS (SELECT 1 FROM REQ_COM_REQ_TEST@apex_link WHERE rqt_key = rqt.rqt_key AND req_key = req.req_key) THEN ',
+'           WHEN  EXISTS (SELECT 1 FROM REQ_COM_REQ_TEST@apex_link WHERE rqt_key = hrqt.rqt_key AND req_key = hrqt.req_key) THEN ',
 '                ''<a href="#"''||               ',
-'                '' class="view_comments fa fa-commenting-o" data-req-key="''||req.req_key||''" data-rqt-key="''||rqt.rqt_key|| ''">''||               ',
+'                '' class="view_comments fa fa-commenting-o" data-req-key="''||hrqt.req_key||''" data-rqt-key="''||hrqt.rqt_key|| ''">''||               ',
 '                ''</a>''           ',
 '           ELSE NULL',
 '        END)  AS COMMENTS,             ',
 '       (CASE ',
-'           WHEN rqt.parent_rqt_key IS NULL THEN ''yy''',
+'           WHEN hrqt.parent_rqt_key IS NULL THEN ''yy''',
 '           ELSE NULL',
 '        END) AS CUMULATIVE,',
 '       (CASE ',
-'           WHEN rqt.parent_rqt_key IS NULL AND EXISTS (SELECT 1 FROM REQUEST_TEST_BLOB@apex_link WHERE rqt_key = rqt.rqt_key AND req_key = req.req_key) THEN ',
+'           WHEN hrqt.parent_rqt_key IS NULL AND EXISTS (SELECT 1 FROM REQUEST_TEST_BLOB@apex_link WHERE rqt_key = hrqt.rqt_key AND req_key = hrqt.req_key) THEN ',
 '                ''<a href="#"''||               ',
-'                '' class="view_report fa fa-file-pdf-o" data-req-key="''||req.req_key||''" data-rqt-key="''||rqt.rqt_key|| ''">''||               ',
+'                '' class="view_report fa fa-file-pdf-o" data-req-key="''||hrqt.req_key||''" data-rqt-key="''||hrqt.rqt_key|| ''">''||               ',
 '                ''</a>''           ',
 '           ELSE NULL',
-'        END)  AS REPORT              ',
-'from    ',
-'   ilms5.request@apex_link REQ,',
-'   ilms5.request_test@apex_link rqt,',
-'   Department@apex_link dpt,',
-'   ilms5.test_detail@apex_link td',
-'WHERE req.req_key = rqt.req_key',
-'and  rqt.dpt_key = dpt.dpt_key ',
-'AND  rqt.td_key = td.td_key',
-'AND  :P6_REFRESH_RESULTS = ''Y''',
-'AND  req.pat_key = :P6_TREE_PAT_KEY',
-'AND ',
-'    (    (INSTR(:P6_TREE_LINK_KEY,''-'') = 0 AND TO_DATE(:P6_TREE_LINK_KEY,''YYYYMMDDHH24:MI:SS'') = TRUNC(req.req_RELEV_date))',
-'      OR',
-'         (INSTR(:P6_TREE_LINK_KEY,''-'') >0 AND req.req_key = SUBSTR(:P6_TREE_LINK_KEY,INSTR(:P6_TREE_LINK_KEY,''-'')+1) )',
-'     )',
-'--START WITH rqt.parent_rqt_key IS NULL',
-'--connect by prior rqt.rqt_key = rqt.parent_rqt_key AND rqt.req_key = rqt.req_key',
-'--order siblings by req_RELEV_date DESC',
-''))
+'        END)  AS REPORT',
+'FROM    hierarchical_rqt hrqt,',
+'        test_detail@apex_link td',
+'WHERE   hrqt.td_key = td.td_key',
+'ORDER BY hrqt.req_key, hrqt.parent_rqt_key NULLS FIRST,hrqt.rqt_rank'))
 ,p_plug_source_type=>'NATIVE_IR'
 ,p_ajax_items_to_submit=>'P6_TREE_LINK_KEY,P6_TREE_PAT_KEY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -14592,6 +14637,7 @@ wwv_flow_api.create_worksheet_column(
 ,p_allow_pivot=>'N'
 ,p_allow_hide=>'N'
 ,p_column_type=>'STRING'
+,p_static_id=>'DPT_NAME'
 ,p_rpt_show_filter_lov=>'N'
 );
 wwv_flow_api.create_worksheet_column(
@@ -14612,7 +14658,29 @@ wwv_flow_api.create_worksheet_column(
 ,p_allow_hide=>'N'
 ,p_column_type=>'STRING'
 ,p_display_text_as=>'WITHOUT_MODIFICATION'
+,p_static_id=>'TD_NAME'
 ,p_rpt_show_filter_lov=>'N'
+);
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(6625029342017640)
+,p_db_column_name=>'ABN'
+,p_display_order=>80
+,p_column_identifier=>'O'
+,p_column_label=>'ABN'
+,p_allow_sorting=>'N'
+,p_allow_filtering=>'N'
+,p_allow_ctrl_breaks=>'N'
+,p_allow_aggregations=>'N'
+,p_allow_computations=>'N'
+,p_allow_charting=>'N'
+,p_allow_group_by=>'N'
+,p_allow_pivot=>'N'
+,p_allow_hide=>'N'
+,p_column_type=>'STRING'
+,p_display_text_as=>'WITHOUT_MODIFICATION'
+,p_column_alignment=>'CENTER'
+,p_static_id=>'ABN'
+,p_column_comment=>'&nbsp;'
 );
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881999508826024)
@@ -14632,6 +14700,7 @@ wwv_flow_api.create_worksheet_column(
 ,p_allow_hide=>'N'
 ,p_column_type=>'STRING'
 ,p_column_alignment=>'CENTER'
+,p_static_id=>'RESULT'
 ,p_rpt_show_filter_lov=>'N'
 );
 wwv_flow_api.create_worksheet_column(
@@ -14652,6 +14721,7 @@ wwv_flow_api.create_worksheet_column(
 ,p_allow_hide=>'N'
 ,p_column_type=>'STRING'
 ,p_column_alignment=>'CENTER'
+,p_static_id=>'RANGE'
 ,p_rpt_show_filter_lov=>'N'
 );
 wwv_flow_api.create_worksheet_column(
@@ -14672,6 +14742,7 @@ wwv_flow_api.create_worksheet_column(
 ,p_allow_hide=>'N'
 ,p_column_type=>'STRING'
 ,p_column_alignment=>'CENTER'
+,p_static_id=>'UNIT'
 ,p_rpt_show_filter_lov=>'N'
 );
 wwv_flow_api.create_worksheet_column(
@@ -14746,8 +14817,17 @@ wwv_flow_api.create_worksheet_column(
 ,p_display_order=>150
 ,p_column_identifier=>'F'
 ,p_column_label=>'Rqt Rank'
+,p_allow_filtering=>'N'
+,p_allow_highlighting=>'N'
+,p_allow_ctrl_breaks=>'N'
+,p_allow_aggregations=>'N'
+,p_allow_computations=>'N'
+,p_allow_charting=>'N'
+,p_allow_group_by=>'N'
+,p_allow_pivot=>'N'
+,p_allow_hide=>'N'
 ,p_column_type=>'NUMBER'
-,p_display_text_as=>'HIDDEN'
+,p_rpt_show_filter_lov=>'N'
 );
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881530129826020)
@@ -14755,8 +14835,17 @@ wwv_flow_api.create_worksheet_column(
 ,p_display_order=>160
 ,p_column_identifier=>'E'
 ,p_column_label=>'Parent Rqt Key'
+,p_allow_filtering=>'N'
+,p_allow_highlighting=>'N'
+,p_allow_ctrl_breaks=>'N'
+,p_allow_aggregations=>'N'
+,p_allow_computations=>'N'
+,p_allow_charting=>'N'
+,p_allow_group_by=>'N'
+,p_allow_pivot=>'N'
+,p_allow_hide=>'N'
 ,p_column_type=>'NUMBER'
-,p_display_text_as=>'HIDDEN'
+,p_rpt_show_filter_lov=>'N'
 );
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881120734826016)
@@ -14764,8 +14853,17 @@ wwv_flow_api.create_worksheet_column(
 ,p_display_order=>170
 ,p_column_identifier=>'A'
 ,p_column_label=>'Req Key'
+,p_allow_filtering=>'N'
+,p_allow_highlighting=>'N'
+,p_allow_ctrl_breaks=>'N'
+,p_allow_aggregations=>'N'
+,p_allow_computations=>'N'
+,p_allow_charting=>'N'
+,p_allow_group_by=>'N'
+,p_allow_pivot=>'N'
+,p_allow_hide=>'N'
 ,p_column_type=>'NUMBER'
-,p_display_text_as=>'HIDDEN'
+,p_rpt_show_filter_lov=>'N'
 );
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881223185826017)
@@ -14786,14 +14884,6 @@ wwv_flow_api.create_worksheet_column(
 ,p_column_type=>'NUMBER'
 ,p_display_text_as=>'HIDDEN'
 );
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(6625029342017640)
-,p_db_column_name=>'ABN'
-,p_display_order=>200
-,p_column_identifier=>'O'
-,p_column_label=>'Abn'
-,p_column_type=>'STRING'
-);
 wwv_flow_api.create_worksheet_rpt(
  p_id=>wwv_flow_api.id(7318464744071081)
 ,p_application_user=>'APXWS_DEFAULT'
@@ -14802,9 +14892,35 @@ wwv_flow_api.create_worksheet_rpt(
 ,p_status=>'PUBLIC'
 ,p_is_default=>'Y'
 ,p_display_rows=>100
-,p_report_columns=>'REQ_KEY:REQ_RELEV_DATE:RQT_KEY:DPT_NAME:PARENT_RQT_KEY:RQT_RANK:TD_NAME:RESULT:RANGE:UNIT:COMMENTS:CUMULATIVE:REPORT:ABN'
+,p_report_columns=>'DPT_NAME:TD_NAME:ABN:RESULT:RANGE:UNIT:COMMENTS:CUMULATIVE:REPORT:'
+,p_sort_column_1=>'REQ_KEY'
+,p_sort_direction_1=>'ASC'
+,p_sort_column_2=>'PARENT_RQT_KEY'
+,p_sort_direction_2=>'ASC NULLS FIRST'
+,p_sort_column_3=>'RQT_RANK'
+,p_sort_direction_3=>'ASC'
+,p_sort_column_4=>'0'
+,p_sort_direction_4=>'ASC'
+,p_sort_column_5=>'0'
+,p_sort_direction_5=>'ASC'
+,p_sort_column_6=>'0'
+,p_sort_direction_6=>'ASC'
 ,p_break_on=>'DPT_NAME'
 ,p_break_enabled_on=>'DPT_NAME'
+);
+wwv_flow_api.create_worksheet_condition(
+ p_id=>wwv_flow_api.id(7825380013559784)
+,p_report_id=>wwv_flow_api.id(7318464744071081)
+,p_name=>'Abnormality'
+,p_condition_type=>'HIGHLIGHT'
+,p_allow_delete=>'Y'
+,p_column_name=>'ABN'
+,p_operator=>'is not null'
+,p_condition_sql=>' (case when ("ABN" is not null) then #APXWS_HL_ID# end) '
+,p_condition_display=>'#APXWS_COL_NAME# #APXWS_OP_NAME#'
+,p_enabled=>'Y'
+,p_highlight_sequence=>10
+,p_row_font_color=>'#F44336'
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(6859058338823901)
@@ -14819,16 +14935,6 @@ wwv_flow_api.create_page_button(
 ,p_warn_on_unsaved_changes=>null
 ,p_icon_css_classes=>'fa-remove'
 ,p_grid_new_row=>'Y'
-);
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(6625192861017641)
-,p_name=>'P6_REFRESH_RESULTS'
-,p_item_sequence=>10
-,p_item_plug_id=>wwv_flow_api.id(8846945686174705)
-,p_source=>'N'
-,p_source_type=>'STATIC'
-,p_display_as=>'NATIVE_HIDDEN'
-,p_attribute_01=>'Y'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6859409164823903)
@@ -14977,6 +15083,9 @@ wwv_flow_api.create_page_item(
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
 );
+end;
+/
+begin
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6864780720823910)
 ,p_name=>'P6_DOB'
@@ -15077,9 +15186,6 @@ wwv_flow_api.create_page_item(
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
 );
-end;
-/
-begin
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6867034578823910)
 ,p_name=>'P6_PATIENT_HISTORY'
@@ -15144,14 +15250,6 @@ wwv_flow_api.create_page_item(
 ,p_attribute_01=>'Y'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
-);
-wwv_flow_api.create_page_computation(
- p_id=>wwv_flow_api.id(6625207659017642)
-,p_computation_sequence=>10
-,p_computation_item=>'P6_REFRESH_RESULTS'
-,p_computation_point=>'AFTER_BOX_BODY'
-,p_computation_type=>'STATIC_ASSIGNMENT'
-,p_computation=>'Y'
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(6875099063823920)
@@ -15926,6 +16024,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>true
+,p_fixed_row_height=>true
 ,p_pagination_type=>'SET'
 ,p_show_total_row_count=>true
 ,p_show_toolbar=>true
@@ -16176,6 +16275,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>true
+,p_fixed_row_height=>true
 ,p_pagination_type=>'SET'
 ,p_show_total_row_count=>false
 ,p_show_toolbar=>true
@@ -16449,6 +16549,9 @@ wwv_flow_api.create_region_column(
 ,p_duplicate_value=>true
 ,p_include_in_export=>false
 );
+end;
+/
+begin
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(20405654861643771)
 ,p_name=>'RQT_RANK'
@@ -16474,9 +16577,6 @@ wwv_flow_api.create_region_column(
 ,p_duplicate_value=>true
 ,p_include_in_export=>true
 );
-end;
-/
-begin
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(20405813910643772)
 ,p_name=>'TD_NAME'
@@ -16732,6 +16832,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>true
+,p_fixed_row_height=>true
 ,p_pagination_type=>'SET'
 ,p_show_total_row_count=>true
 ,p_show_toolbar=>true
@@ -17294,6 +17395,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>true
+,p_fixed_row_height=>true
 ,p_pagination_type=>'SET'
 ,p_show_total_row_count=>true
 ,p_show_toolbar=>true
@@ -17573,6 +17675,9 @@ wwv_flow_api.create_page_item(
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
 );
+end;
+/
+begin
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6968629103802348)
 ,p_name=>'P66_NAME'
@@ -17594,9 +17699,6 @@ wwv_flow_api.create_page_item(
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
 );
-end;
-/
-begin
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6969012823802348)
 ,p_name=>'P66_POS'
