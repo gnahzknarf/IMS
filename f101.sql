@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   19:09 Saturday September 26, 2020
+--   Date and Time:   19:37 Saturday September 26, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -116,7 +116,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200926190545'
+,p_last_upd_yyyymmddhh24miss=>'20200926193546'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>9
 ,p_ui_type_name => null
@@ -14096,7 +14096,7 @@ wwv_flow_api.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_javascript_code_onload=>'$("#rgnSticky").stickyWidget({toggleWidth:true});'
 ,p_inline_css=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'',
+'/* Fix IR Column Width */',
 'th#DPT_NAME,td[headers=DPT_NAME]{',
 '  width:200px;  ',
 '}',
@@ -14123,10 +14123,16 @@ wwv_flow_api.create_page(
 '  width:40px;',
 '}',
 '',
+'/* Remove the paddind top */',
 '.t-Body-contentInner {',
 '',
-'    padding: 0px; !important',
+'    padding-top: 0px; !important',
 ' ',
+'}',
+'',
+'/* Hide IR report setting area*/',
+'#results_rn_control_panel1{',
+'     display:none;',
 '}'))
 ,p_page_template_options=>'#DEFAULT#'
 ,p_page_comment=>wwv_flow_string.join(wwv_flow_t_varchar2(
@@ -14166,7 +14172,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200926190545'
+,p_last_upd_yyyymmddhh24miss=>'20200926193546'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214826760077506)
@@ -14506,6 +14512,8 @@ wwv_flow_api.create_page_plug(
 '            req.req_key,',
 '            req.req_relev_date,',
 '            rqt.rqt_key,',
+'            dcp.dcp_key,',
+'            dcp.dcp_name,',
 '            dpt.dpt_key,',
 '            dpt.dpt_name,',
 '            parent_rqt_key,',
@@ -14517,9 +14525,13 @@ wwv_flow_api.create_page_plug(
 '    FROM    ilms5.request@apex_link REQ,',
 '            ilms5.request_test@apex_link rqt,        ',
 '            Department@apex_link dpt,',
+'            DEPT_TYPE@apex_link dptt,',
+'            DISCIPLINE@apex_link dcp,',
 '            apex_params params',
 '    WHERE   req.req_key = rqt.req_key',
 '    AND     rqt.dpt_key = dpt.dpt_key ',
+'    AND     dpt.dptt_key = dptt.dptt_key',
+'    AND     dptt.dcp_key = dcp.dcp_key',
 '    AND     params.pat_key IS NOT NULL AND params.TREE_LINK_KEY IS NOT NULL ',
 '    AND     req.pat_key = params.pat_key',
 '    AND     (    (INSTR(params.TREE_LINK_KEY,''-'') = 0 AND params.TREE_LINK_KEY = TO_CHAR(req.req_RELEV_date,''YYYYMMDD''))',
@@ -14539,6 +14551,7 @@ wwv_flow_api.create_page_plug(
 '       hrqt.req_key,',
 '       hrqt.req_relev_date,',
 '       hrqt.rqt_key,',
+'       hrqt.dcp_name,',
 '       hrqt.dpt_name,',
 '       hrqt.parent_rqt_key,',
 '       hrqt.rqt_rank,',
@@ -14557,11 +14570,14 @@ wwv_flow_api.create_page_plug(
 '                '' class="view_comments fa fa-commenting-o" data-req-key="''||hrqt.req_key||''" data-rqt-key="''||hrqt.rqt_key|| ''">''||               ',
 '                ''</a>''           ',
 '           ELSE NULL',
-'        END)  AS COMMENTS,             ',
+'        END)  AS COMMENTS,',
 '       (CASE ',
-'           WHEN hrqt.parent_rqt_key IS NULL THEN ''yy''',
+'           WHEN hrqt.parent_rqt_key IS NULL AND EXISTS (SELECT 1 FROM REQUEST_TEST_BLOB@apex_link WHERE rqt_key = hrqt.rqt_key AND req_key = hrqt.req_key) THEN ',
+'                ''<a href="#"''||               ',
+'                '' class="view_cumulative fa fa-line-chart" data-req-key="''||hrqt.req_key||''" data-rqt-key="''||hrqt.rqt_key|| ''">''||               ',
+'                ''</a>''           ',
 '           ELSE NULL',
-'        END) AS CUMULATIVE,',
+'        END)  AS CUMULATIVE,               ',
 '       (CASE ',
 '           WHEN hrqt.parent_rqt_key IS NULL AND EXISTS (SELECT 1 FROM REQUEST_TEST_BLOB@apex_link WHERE rqt_key = hrqt.rqt_key AND req_key = hrqt.req_key) THEN ',
 '                ''<a href="#"''||               ',
@@ -14612,8 +14628,8 @@ wwv_flow_api.create_worksheet(
 ,p_max_row_count=>'1000000'
 ,p_pagination_type=>'ROWS_X_TO_Y_OF_Z'
 ,p_pagination_display_pos=>'BOTTOM_RIGHT'
+,p_show_display_row_count=>'Y'
 ,p_report_list_mode=>'TABS'
-,p_fixed_header=>'NONE'
 ,p_show_detail_link=>'N'
 ,p_show_notify=>'Y'
 ,p_download_formats=>'CSV:HTML:EMAIL:XLS:PDF:RTF'
@@ -14621,15 +14637,32 @@ wwv_flow_api.create_worksheet(
 ,p_internal_uid=>6881024618826015
 );
 wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7761791185219113)
+,p_db_column_name=>'DCP_NAME'
+,p_display_order=>10
+,p_column_identifier=>'P'
+,p_column_label=>'Discipline'
+,p_allow_sorting=>'N'
+,p_allow_highlighting=>'N'
+,p_allow_aggregations=>'N'
+,p_allow_computations=>'N'
+,p_allow_charting=>'N'
+,p_allow_group_by=>'N'
+,p_allow_pivot=>'N'
+,p_allow_hide=>'N'
+,p_column_type=>'STRING'
+,p_static_id=>'DCP_NAME'
+,p_rpt_show_filter_lov=>'N'
+);
+wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881419718826019)
 ,p_db_column_name=>'DPT_NAME'
-,p_display_order=>40
+,p_display_order=>20
 ,p_column_identifier=>'D'
 ,p_column_label=>'Department'
 ,p_allow_sorting=>'N'
 ,p_allow_filtering=>'N'
 ,p_allow_highlighting=>'N'
-,p_allow_ctrl_breaks=>'N'
 ,p_allow_aggregations=>'N'
 ,p_allow_computations=>'N'
 ,p_allow_charting=>'N'
@@ -14643,7 +14676,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881737459826022)
 ,p_db_column_name=>'TD_NAME'
-,p_display_order=>70
+,p_display_order=>30
 ,p_column_identifier=>'G'
 ,p_column_label=>'Test'
 ,p_allow_sorting=>'N'
@@ -14664,7 +14697,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6625029342017640)
 ,p_db_column_name=>'ABN'
-,p_display_order=>80
+,p_display_order=>40
 ,p_column_identifier=>'O'
 ,p_column_label=>'ABN'
 ,p_allow_sorting=>'N'
@@ -14685,7 +14718,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881999508826024)
 ,p_db_column_name=>'RESULT'
-,p_display_order=>90
+,p_display_order=>50
 ,p_column_identifier=>'I'
 ,p_column_label=>'Result'
 ,p_allow_sorting=>'N'
@@ -14706,7 +14739,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6882064067826025)
 ,p_db_column_name=>'RANGE'
-,p_display_order=>100
+,p_display_order=>60
 ,p_column_identifier=>'J'
 ,p_column_label=>'Range'
 ,p_allow_sorting=>'N'
@@ -14727,7 +14760,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6882124973826026)
 ,p_db_column_name=>'UNIT'
-,p_display_order=>110
+,p_display_order=>70
 ,p_column_identifier=>'K'
 ,p_column_label=>'Unit'
 ,p_allow_sorting=>'N'
@@ -14748,7 +14781,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6882282083826027)
 ,p_db_column_name=>'COMMENTS'
-,p_display_order=>120
+,p_display_order=>80
 ,p_column_identifier=>'L'
 ,p_column_label=>'Comments'
 ,p_allow_sorting=>'N'
@@ -14770,7 +14803,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6882339672826028)
 ,p_db_column_name=>'CUMULATIVE'
-,p_display_order=>130
+,p_display_order=>90
 ,p_column_identifier=>'M'
 ,p_column_label=>'Cumulative'
 ,p_allow_sorting=>'N'
@@ -14792,7 +14825,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6882485271826029)
 ,p_db_column_name=>'REPORT'
-,p_display_order=>140
+,p_display_order=>100
 ,p_column_identifier=>'N'
 ,p_column_label=>'Report'
 ,p_allow_sorting=>'N'
@@ -14814,7 +14847,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881650912826021)
 ,p_db_column_name=>'RQT_RANK'
-,p_display_order=>150
+,p_display_order=>110
 ,p_column_identifier=>'F'
 ,p_column_label=>'Rqt Rank'
 ,p_allow_filtering=>'N'
@@ -14832,7 +14865,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881530129826020)
 ,p_db_column_name=>'PARENT_RQT_KEY'
-,p_display_order=>160
+,p_display_order=>120
 ,p_column_identifier=>'E'
 ,p_column_label=>'Parent Rqt Key'
 ,p_allow_filtering=>'N'
@@ -14850,7 +14883,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881120734826016)
 ,p_db_column_name=>'REQ_KEY'
-,p_display_order=>170
+,p_display_order=>130
 ,p_column_identifier=>'A'
 ,p_column_label=>'Req Key'
 ,p_allow_filtering=>'N'
@@ -14868,7 +14901,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881223185826017)
 ,p_db_column_name=>'REQ_RELEV_DATE'
-,p_display_order=>180
+,p_display_order=>140
 ,p_column_identifier=>'B'
 ,p_column_label=>'Req Relev Date'
 ,p_column_type=>'DATE'
@@ -14878,7 +14911,7 @@ wwv_flow_api.create_worksheet_column(
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881335668826018)
 ,p_db_column_name=>'RQT_KEY'
-,p_display_order=>190
+,p_display_order=>150
 ,p_column_identifier=>'C'
 ,p_column_label=>'Rqt Key'
 ,p_column_type=>'NUMBER'
@@ -14892,7 +14925,7 @@ wwv_flow_api.create_worksheet_rpt(
 ,p_status=>'PUBLIC'
 ,p_is_default=>'Y'
 ,p_display_rows=>100
-,p_report_columns=>'DPT_NAME:TD_NAME:ABN:RESULT:RANGE:UNIT:COMMENTS:CUMULATIVE:REPORT:'
+,p_report_columns=>'DPT_NAME:TD_NAME:ABN:RESULT:RANGE:UNIT:COMMENTS:CUMULATIVE:REPORT::DCP_NAME'
 ,p_sort_column_1=>'REQ_KEY'
 ,p_sort_direction_1=>'ASC'
 ,p_sort_column_2=>'PARENT_RQT_KEY'
@@ -14905,11 +14938,11 @@ wwv_flow_api.create_worksheet_rpt(
 ,p_sort_direction_5=>'ASC'
 ,p_sort_column_6=>'0'
 ,p_sort_direction_6=>'ASC'
-,p_break_on=>'DPT_NAME'
-,p_break_enabled_on=>'DPT_NAME'
+,p_break_on=>'DCP_NAME:DPT_NAME:0:0:0:0'
+,p_break_enabled_on=>'DCP_NAME:DPT_NAME:0:0:0:0'
 );
 wwv_flow_api.create_worksheet_condition(
- p_id=>wwv_flow_api.id(7825380013559784)
+ p_id=>wwv_flow_api.id(8010892435790014)
 ,p_report_id=>wwv_flow_api.id(7318464744071081)
 ,p_name=>'Abnormality'
 ,p_condition_type=>'HIGHLIGHT'
@@ -15044,6 +15077,9 @@ wwv_flow_api.create_page_item(
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
 );
+end;
+/
+begin
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6863949434823910)
 ,p_name=>'P6_POS'
@@ -15083,9 +15119,6 @@ wwv_flow_api.create_page_item(
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
 );
-end;
-/
-begin
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6864780720823910)
 ,p_name=>'P6_DOB'
