@@ -28,16 +28,16 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   20:43 Saturday September 26, 2020
+--   Date and Time:   21:19 Sunday September 27, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
 --     Pages:                      7
---       Items:                   27
---       Processes:                5
+--       Items:                   29
+--       Processes:                6
 --       Regions:                 14
 --       Buttons:                  3
---       Dynamic Actions:         13
+--       Dynamic Actions:         11
 --     Shared Components:
 --       Logic:
 --         Processes:              2
@@ -118,7 +118,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200926204300'
+,p_last_upd_yyyymmddhh24miss=>'20200927202355'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>9
 ,p_ui_type_name => null
@@ -415,22 +415,40 @@ wwv_flow_api.create_flow_process(
 ,p_process_name=>'CB_GET_PDF_P7'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'DECLARE',
-'',
-'  v_blob blob;',
-'  v_mime_type varchar2(500);',
+'    v_blob       BLOB;',
+'    v_mime_type  VARCHAR2(500);',
+'    v_temp       VARCHAR2(500);',
+'    v_file_type  VARCHAR2(50);',
 'BEGIN',
 '',
-'    SELECT  RCEX_LINES as BLOB_CONTENT ,',
-'            --''text/html'' AS MIME_TYPE',
-'            --''application/msword'' AS MIME_TYPE            ',
-'            --''application/vnd.openxmlformats-officedocument.wordprocessingml.document'' AS MIME_TYPE',
-'            ''application/rtf'' AS MIME_TYPE',
-'    INTO    v_blob, v_mime_type',
+'    SELECT  RCEX_LINES as BLOB_CONTENT ',
+'    INTO    v_blob',
 '    FROM REQ_COM_REQ_TEST@apex_link reqc,',
 '         REQ_COM_EXT@apex_link rcex',
 '    WHERE reqc.REQC_KEY = rcex.REQC_KEY',
 '    AND reqc.rqt_key = :p7_rqt_key AND reqc.req_key = :p7_req_key;',
 '--    AND reqc.rqt_key = 18 AND reqc.req_key = 6006617;',
+'    --',
+'    -- Try to determine mime type by reading the file',
+'    SELECT  UPPER(utl_raw.cast_to_varchar2(dbms_lob.substr(v_blob,255))),',
+'            dbms_lob.substr(v_blob,2,1) ',
+'    INTO    v_temp, v_file_type',
+'    FROM    dual;',
+'    ',
+'    IF v_file_type = ''2550'' OR INSTR(v_temp, ''PDF'') > 0 THEN ',
+'        v_mime_type := ''application/pdf'';',
+'    ELSIF INSTR(v_temp, ''RTF'') > 0 THEN',
+'        v_mime_type := ''application/rtf'';',
+'    ELSIF INSTR(v_temp, ''HTML'') > 0 THEN',
+'        v_mime_type := ''text/html'';',
+'    ELSIF v_file_type = ''D0CF'' THEN',
+'        v_mime_type := ''application/msword'';   ',
+'    ELSIF v_file_type = ''504B'' THEN ',
+'        v_mime_type := ''application/vnd.openxmlformats-officedocument.wordprocessingml.document'';',
+'    ELSE ',
+'        v_mime_type :=''application/octet-stream'';        ',
+'    END IF;',
+'    ',
 '        --',
 '        htp.flush;                 ',
 '        htp.init;',
@@ -457,29 +475,49 @@ wwv_flow_api.create_flow_process(
 ,p_process_name=>'CB_GET_PDF_P5'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'DECLARE',
-'',
-'  v_blob blob;',
-'  v_mime_type varchar2(500);',
+'    v_blob       BLOB;',
+'    v_mime_type  VARCHAR2(500);',
+'    v_temp       VARCHAR2(500);',
+'    v_file_type  VARCHAR2(50);',
 'BEGIN',
-'',
-'    SELECT  RTB_VALUE as BLOB_CONTENT ,',
-'            ''application/msword'' AS MIME_TYPE',
-'    INTO    v_blob, v_mime_type',
-'    FROM REQUEST_TEST_BLOB@apex_link ',
-' --   WHERE rqt_key = :p5_rqt_key AND req_key = :p5_req_key;',
-'    WHERE rqt_key = 79 AND req_key = 6006262;',
-'   -- WHERE rqt_key = 22 AND req_key = 6006343;',
-'        --',
-'        htp.flush;                 ',
-'        htp.init;',
-'        owa_util.mime_header(v_mime_type,false);',
-'        htp.p(''Content-Length: '' || dbms_lob.getlength(v_blob));   ',
-'        owa_util.http_header_close; ',
-'       -- htp.p( ''Content-Disposition: inline; filename="''||''report''||''.pdf"'' );  ',
-'        --htp.p(''Set-Cookie: fileDownload=true; path=/'');',
+'    -- Get Blob File',
+'    SELECT  rtb_value AS blob_content ',
+'    INTO    v_blob        ',
+'    FROM    request_test_blob@apex_link',
+'    WHERE   rqt_key = :p5_rqt_key',
+'    AND     req_key = :p5_req_key;',
+'    --',
+'    -- Try to determine mime type by reading the file',
+'    SELECT  UPPER(utl_raw.cast_to_varchar2(dbms_lob.substr(v_blob,255))),',
+'            dbms_lob.substr(v_blob,2,1) ',
+'    INTO    v_temp, v_file_type',
+'    FROM    dual;',
+'    ',
+'    IF v_file_type = ''2550'' OR INSTR(v_temp, ''PDF'') > 0 THEN ',
+'        v_mime_type := ''application/pdf'';',
+'    ELSIF INSTR(v_temp, ''RTF'') > 0 THEN',
+'        v_mime_type := ''application/rtf'';',
+'    ELSIF INSTR(v_temp, ''HTML'') > 0 THEN',
+'        v_mime_type := ''text/html'';',
+'    ELSIF v_file_type = ''D0CF'' THEN',
+'        v_mime_type := ''application/msword'';   ',
+'    ELSIF v_file_type = ''504B'' THEN ',
+'        v_mime_type := ''application/vnd.openxmlformats-officedocument.wordprocessingml.document'';',
+'    ELSE ',
+'        v_mime_type :=''application/octet-stream'';        ',
+'    END IF;',
+'    ',
+'    ',
+'    --',
+'    htp.flush;',
+'    htp.init;',
+'    owa_util.mime_header(v_mime_type,false);',
+'    htp.p(''Content-Length: '' || dbms_lob.getlength(v_blob));',
+'    owa_util.http_header_close; ',
+'    -- htp.p( ''Content-Disposition: inline; filename="''||''report''||''.pdf"'' );  ',
+'    --htp.p(''Set-Cookie: fileDownload=true; path=/'');',
 '         ',
-'        wpg_docload.download_file(v_blob);           ',
-'',
+'    wpg_docload.download_file(v_blob);',
 'END;'))
 ,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'
 );
@@ -13181,12 +13219,7 @@ wwv_flow_api.create_user_interface(
 ,p_navigation_list_position=>'SIDE'
 ,p_navigation_list_template_id=>wwv_flow_api.id(38667631169185978288)
 ,p_nav_list_template_options=>'#DEFAULT#:js-defaultCollapsed:js-navCollapsed--hidden:t-TreeNav--classic'
-,p_css_file_urls=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'#APP_IMAGES#app-icon.css?version=#APP_VERSION#',
-'#APP_IMAGES#css/CIMS.css'))
-,p_javascript_file_urls=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'#APP_IMAGES#js/cims_apex_util.js',
-'#APP_IMAGES#js/cims_apex.js'))
+,p_css_file_urls=>'#APP_IMAGES#app-icon.css?version=#APP_VERSION#'
 ,p_nav_bar_type=>'LIST'
 ,p_nav_bar_list_id=>wwv_flow_api.id(38667663735315978319)
 ,p_nav_bar_list_template_id=>wwv_flow_api.id(38667630724527978288)
@@ -13494,11 +13527,12 @@ wwv_flow_api.create_page(
 ,p_page_mode=>'MODAL'
 ,p_step_title=>'Cumulative'
 ,p_autocomplete_on_off=>'OFF'
+,p_step_template=>wwv_flow_api.id(38667540104923978224)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_dialog_height=>'800'
 ,p_dialog_width=>'1200'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200919104511'
+,p_last_upd_yyyymmddhh24miss=>'20200927182832'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2144239822194417)
@@ -13616,6 +13650,22 @@ wwv_flow_api.create_ig_report_column(
 ,p_is_visible=>true
 ,p_is_frozen=>false
 );
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(7761855521219114)
+,p_name=>'P2_REQ_KEY'
+,p_item_sequence=>10
+,p_item_plug_id=>wwv_flow_api.id(2144239822194417)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(7761949977219115)
+,p_name=>'P2_RQT_KEY'
+,p_item_sequence=>20
+,p_item_plug_id=>wwv_flow_api.id(2144239822194417)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
 end;
 /
 prompt --application/pages/page_00005
@@ -13623,9 +13673,8 @@ begin
 wwv_flow_api.create_page(
  p_id=>5
 ,p_user_interface_id=>wwv_flow_api.id(38667664112643978319)
-,p_name=>'View PDF - New Tab'
-,p_alias=>'VIEW-PDF-NEW-TAB'
-,p_step_title=>'View PDF - New Tab'
+,p_name=>'View Report'
+,p_step_title=>'View Report'
 ,p_autocomplete_on_off=>'OFF'
 ,p_inline_css=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '.apex-side-nav .t-Body-actions,',
@@ -13639,7 +13688,7 @@ wwv_flow_api.create_page(
 '}'))
 ,p_page_template_options=>'#DEFAULT#'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200925201554'
+,p_last_upd_yyyymmddhh24miss=>'20200927172148'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(72612634762906227555)
@@ -13757,7 +13806,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200926194615'
+,p_last_upd_yyyymmddhh24miss=>'20200927202355'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214826760077506)
@@ -14135,6 +14184,7 @@ wwv_flow_api.create_page_plug(
 'SELECT',
 '       hrqt.req_key,',
 '       hrqt.req_relev_date,',
+'       TO_CHAR(hrqt.req_relev_date,''DD/MM/YYYY HH24:MI'') AS REQ_RELEV_DATE_DSP,',
 '       hrqt.rqt_key,',
 '       hrqt.dcp_name,',
 '       hrqt.dpt_name,',
@@ -14264,6 +14314,7 @@ wwv_flow_api.create_worksheet_column(
 ,p_display_order=>30
 ,p_column_identifier=>'G'
 ,p_column_label=>'Test'
+,p_column_html_expression=>'<span title="#REQ_RELEV_DATE_DSP#">#TD_NAME#</span>'
 ,p_allow_sorting=>'N'
 ,p_allow_filtering=>'N'
 ,p_allow_highlighting=>'N'
@@ -14488,7 +14539,7 @@ wwv_flow_api.create_worksheet_column(
 ,p_db_column_name=>'REQ_RELEV_DATE'
 ,p_display_order=>140
 ,p_column_identifier=>'B'
-,p_column_label=>'Req Relev Date'
+,p_column_label=>'Date'
 ,p_column_type=>'DATE'
 ,p_display_text_as=>'HIDDEN'
 ,p_tz_dependent=>'N'
@@ -14502,6 +14553,15 @@ wwv_flow_api.create_worksheet_column(
 ,p_column_type=>'NUMBER'
 ,p_display_text_as=>'HIDDEN'
 );
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7762514099219121)
+,p_db_column_name=>'REQ_RELEV_DATE_DSP'
+,p_display_order=>160
+,p_column_identifier=>'Q'
+,p_column_label=>'Req Relev Date Dsp'
+,p_column_type=>'STRING'
+,p_display_text_as=>'HIDDEN'
+);
 wwv_flow_api.create_worksheet_rpt(
  p_id=>wwv_flow_api.id(7318464744071081)
 ,p_application_user=>'APXWS_DEFAULT'
@@ -14510,7 +14570,7 @@ wwv_flow_api.create_worksheet_rpt(
 ,p_status=>'PUBLIC'
 ,p_is_default=>'Y'
 ,p_display_rows=>100
-,p_report_columns=>'DPT_NAME:TD_NAME:ABN:RESULT:RANGE:UNIT:COMMENTS:CUMULATIVE:REPORT::DCP_NAME'
+,p_report_columns=>'DPT_NAME:TD_NAME:ABN:RESULT:RANGE:UNIT:COMMENTS:CUMULATIVE:REPORT::DCP_NAME:REQ_RELEV_DATE_DSP'
 ,p_sort_column_1=>'REQ_KEY'
 ,p_sort_direction_1=>'ASC'
 ,p_sort_column_2=>'PARENT_RQT_KEY'
@@ -14922,53 +14982,11 @@ wwv_flow_api.create_page_da_action(
 ,p_affected_region_id=>wwv_flow_api.id(8844515454174681)
 );
 wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(6876916477823920)
-,p_name=>'When Click View Comments'
-,p_event_sequence=>20
-,p_triggering_element_type=>'JQUERY_SELECTOR'
-,p_triggering_element=>'.view_comments'
-,p_bind_type=>'live'
-,p_bind_delegate_to_selector=>'#results_rn'
-,p_bind_event_type=>'click'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(6624930256017639)
-,p_event_id=>wwv_flow_api.id(6876916477823920)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_JAVASCRIPT_CODE'
-,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'var reqKey =this.triggeringElement.getAttribute(''data-req-key'');',
-'var rqtKey =this.triggeringElement.getAttribute(''data-rqt-key'');',
-'console.log("reqKey: ",reqKey);',
-'console.log("rqtKey: ",rqtKey);',
-'',
-'',
-'var url = "f?p=&APP_ID.:7:&SESSION.::NO:7:P7_REQ_KEY,P7_RQT_KEY:" + reqKey +","+rqtKey + ":NO";',
-'',
-'console.log(''url'',url);',
-'javascript:window.open(url, ''_blank'');',
-'/*',
-'    apex.navigation.dialog(',
-'        url,',
-'        {',
-'            title:''Comments'',',
-'            height:''480'',',
-'            width:''800'',',
-'            modal:true,',
-'            resizable:true',
-'        },',
-'        ''a-Dialog--uiDialog'',',
-'        $(''#COMMENTS'') );',
-'*/        '))
-);
-wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(6878783968823921)
-,p_name=>'When Click View Cumulative'
+,p_name=>'When Click View Cumulative/Report/Comment'
 ,p_event_sequence=>30
 ,p_triggering_element_type=>'JQUERY_SELECTOR'
-,p_triggering_element=>'.view_cumulative'
+,p_triggering_element=>'.view_cumulative, .view_report, .view_comments'
 ,p_bind_type=>'live'
 ,p_bind_delegate_to_selector=>'#results_rn'
 ,p_bind_event_type=>'click'
@@ -14977,34 +14995,7 @@ wwv_flow_api.create_page_da_action(
  p_id=>wwv_flow_api.id(6879201435823921)
 ,p_event_id=>wwv_flow_api.id(6878783968823921)
 ,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_JAVASCRIPT_CODE'
-,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'var reqKey =this.triggeringElement.getAttribute(''data-link-key'');',
-'console.log("reqKey: ",reqKey);',
-'$s("P2_REQ_KEY",reqKey);',
-'var url = "f?p=&APP_ID.:2:&SESSION.::NO:2:::NO";',
-'',
-'',
-'console.log(''url'',url);',
-'apex.navigation.redirect(url);'))
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(6877868988823920)
-,p_name=>'When Click View Report'
-,p_event_sequence=>40
-,p_triggering_element_type=>'JQUERY_SELECTOR'
-,p_triggering_element=>'.view_report'
-,p_bind_type=>'live'
-,p_bind_delegate_to_selector=>'#results_rn'
-,p_bind_event_type=>'click'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(6878331025823920)
-,p_event_id=>wwv_flow_api.id(6877868988823920)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
+,p_action_sequence=>30
 ,p_execute_on_page_init=>'N'
 ,p_action=>'NATIVE_JAVASCRIPT_CODE'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
@@ -15013,11 +15004,45 @@ wwv_flow_api.create_page_da_action(
 'console.log("reqKey: ",reqKey);',
 'console.log("rqtKey: ",rqtKey);',
 '',
+'var targetPage;',
+'if ($(this.triggeringElement).hasClass(''view_cumulative'')){',
+'    targetPage = 2;',
+'}else if ($(this.triggeringElement).hasClass(''view_comments'')){',
+'    targetPage = 7;',
+'}else if ($(this.triggeringElement).hasClass(''view_report'')){',
+'    targetPage = 5;',
+'}',
+'    ',
+'console.log("targetPage: ",targetPage);',
 '',
-'var url = "f?p=&APP_ID.:5:&SESSION.::NO:5:P5_REQ_KEY,P5_RQT_KEY:" + reqKey +","+rqtKey + ":NO";',
 '',
-'console.log(''url'',url);',
-'javascript:window.open(url, ''_blank'');'))
+'',
+'Promise = function(){',
+'    return apex.server.process(',
+'                "CB_GET_TARGET_URL",',
+'                {   x01: targetPage,',
+'                    x02: reqKey,',
+'                    x03: rqtKey',
+'                }',
+'            );',
+'    };       ',
+'',
+'Promise()',
+'    .then(function(data){',
+'            console.log("promise resolved", data);',
+'            if (!data.success){',
+'                console.log("searchPromise Promise resolved. error: ", data.message);',
+'            }else{',
+'                if (targetPage == 5){',
+'                    javascript:window.open(data.url, ''_blank'');    ',
+'                }else{',
+'                    apex.navigation.redirect(data.url);           ',
+'                }',
+'                ',
+'                ',
+'            }',
+'        });',
+'        '))
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(6872305515823917)
@@ -15117,6 +15142,43 @@ wwv_flow_api.create_page_process(
 ,p_process_name=>'Initialize form Summary'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(7762417885219120)
+,p_process_sequence=>10
+,p_process_point=>'ON_DEMAND'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'CB_GET_TARGET_URL'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'DECLARE',
+'    v_url         VARCHAR2(4000);',
+'    v_page_id     NUMBER;',
+'BEGIN',
+'    -- Target Page Id: apex_application.g_x01',
+'    -- Req Id        : apex_application.g_x02',
+'    -- Rqt Id        : apex_application.g_x03',
+'    v_page_id := apex_application.g_x01;',
+'    ',
+'    v_url := ''f?p=&APP_ID.:''|| v_page_id ||'':&APP_SESSION.''||''::NO:''||v_page_id',
+'                            || '':P''||v_page_id||''_REQ_KEY,''||''P''||v_page_id||''_RQT_KEY:''||apex_application.g_x02||'',''||apex_application.g_x03;',
+'    ',
+'    v_url := APEX_UTIL.PREPARE_URL(v_url);',
+'    ',
+'    apex_json.open_object;',
+'    apex_json.write(''success'', true);',
+'    apex_json.write(''message'', ''Getting target url completed.'');',
+'    --',
+'    apex_json.write(''url'',v_url,TRUE);    ',
+'    --',
+'    apex_json.close_object;            ',
+'EXCEPTION',
+'    WHEN others THEN',
+'        apex_json.open_object;',
+'        apex_json.write(''success'', false);',
+'        apex_json.write(''message'', ''Error getting target page url. SQLCODE: ''||SQLCODE);',
+'        apex_json.close_object;      ',
+'END;'))
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+);
 end;
 /
 prompt --application/pages/page_00007
@@ -15126,6 +15188,7 @@ wwv_flow_api.create_page(
 ,p_user_interface_id=>wwv_flow_api.id(38667664112643978319)
 ,p_name=>'View Comment'
 ,p_alias=>'VIEW-COMMENT'
+,p_page_mode=>'MODAL'
 ,p_step_title=>'View Comment'
 ,p_autocomplete_on_off=>'OFF'
 ,p_inline_css=>wwv_flow_string.join(wwv_flow_t_varchar2(
@@ -15139,8 +15202,10 @@ wwv_flow_api.create_page(
 '    height: 0px',
 '}'))
 ,p_page_template_options=>'#DEFAULT#'
+,p_dialog_height=>'800'
+,p_dialog_width=>'1200'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200926194344'
+,p_last_upd_yyyymmddhh24miss=>'20200927182921'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(72620239023029957701)
@@ -15158,30 +15223,16 @@ wwv_flow_api.create_page_item(
 ,p_name=>'P7_REQ_KEY'
 ,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(72620239023029957701)
-,p_prompt=>'New'
-,p_display_as=>'NATIVE_TEXT_FIELD'
-,p_cSize=>30
-,p_field_template=>wwv_flow_api.id(38667640514083978295)
-,p_item_template_options=>'#DEFAULT#'
-,p_attribute_01=>'N'
-,p_attribute_02=>'N'
-,p_attribute_04=>'TEXT'
-,p_attribute_05=>'BOTH'
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(7605262064730165)
 ,p_name=>'P7_RQT_KEY'
 ,p_item_sequence=>20
 ,p_item_plug_id=>wwv_flow_api.id(72620239023029957701)
-,p_prompt=>'New'
-,p_display_as=>'NATIVE_TEXT_FIELD'
-,p_cSize=>30
-,p_field_template=>wwv_flow_api.id(38667640514083978295)
-,p_item_template_options=>'#DEFAULT#'
-,p_attribute_01=>'N'
-,p_attribute_02=>'N'
-,p_attribute_04=>'TEXT'
-,p_attribute_05=>'BOTH'
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
 );
 end;
 /
