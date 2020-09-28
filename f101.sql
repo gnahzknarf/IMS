@@ -28,16 +28,16 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   21:19 Sunday September 27, 2020
+--   Date and Time:   15:24 Monday September 28, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
 --     Pages:                      7
---       Items:                   29
---       Processes:                6
---       Regions:                 14
---       Buttons:                  3
---       Dynamic Actions:         11
+--       Items:                   31
+--       Processes:                7
+--       Regions:                 15
+--       Buttons:                  4
+--       Dynamic Actions:         12
 --     Shared Components:
 --       Logic:
 --         Processes:              2
@@ -65,6 +65,7 @@ prompt APPLICATION 101 - DEMO
 --         Plug-ins:               2
 --       Globalization:
 --       Reports:
+--         Queries:                1
 --       E-Mail:
 --     Supporting Objects:  Included
 --   Version:         20.1.0.00.13
@@ -118,7 +119,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200927202355'
+,p_last_upd_yyyymmddhh24miss=>'20200928152042'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>9
 ,p_ui_type_name => null
@@ -481,11 +482,12 @@ wwv_flow_api.create_flow_process(
 '    v_file_type  VARCHAR2(50);',
 'BEGIN',
 '    -- Get Blob File',
-'    SELECT  rtb_value AS blob_content ',
+'    SELECT  SPF_REPORT AS blob_content ',
 '    INTO    v_blob        ',
-'    FROM    request_test_blob@apex_link',
-'    WHERE   rqt_key = :p5_rqt_key',
-'    AND     req_key = :p5_req_key;',
+'    FROM    SPOOL_FRAME@apex_link',
+'    WHERE     req_key = :p5_req_key',
+'    AND rownum = 1',
+'    ;',
 '    --',
 '    -- Try to determine mime type by reading the file',
 '    SELECT  UPPER(utl_raw.cast_to_varchar2(dbms_lob.substr(v_blob,255))),',
@@ -10908,6 +10910,19 @@ wwv_flow_api.create_shortcut(
 );
 end;
 /
+prompt --application/shared_components/reports/report_queries/dummy_query
+begin
+wwv_flow_api.create_shared_query(
+ p_id=>wwv_flow_api.id(8403500675747237)
+,p_name=>'DUMMY_QUERY'
+,p_query_text=>'SELECT ''YES'' AS COL1 FROM DUAL'
+,p_xml_structure=>'STANDARD'
+,p_format=>'HTM'
+,p_output_file_name=>'DUMMY_QUERY'
+,p_content_disposition=>'ATTACHMENT'
+);
+end;
+/
 prompt --application/shared_components/security/authentications/application_express_authentication
 begin
 wwv_flow_api.create_authentication(
@@ -13532,27 +13547,29 @@ wwv_flow_api.create_page(
 ,p_dialog_height=>'800'
 ,p_dialog_width=>'1200'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200927182832'
+,p_last_upd_yyyymmddhh24miss=>'20200928142241'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2144239822194417)
-,p_plug_name=>'Cumulative'
-,p_region_template_options=>'#DEFAULT#'
+,p_plug_name=>'Cumulative Results Display'
+,p_region_template_options=>'#DEFAULT#:js-showMaximizeButton:t-Region--scrollBody'
 ,p_component_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_api.id(38667577585364978249)
-,p_plug_display_sequence=>10
+,p_plug_template=>wwv_flow_api.id(38667579460790978250)
+,p_plug_display_sequence=>20
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'SQL'
 ,p_plug_source=>'select '' XXX '' AS A from dual'
 ,p_plug_source_type=>'NATIVE_IG'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_prn_content_disposition=>'ATTACHMENT'
+,p_prn_document_header=>'APEX'
 ,p_prn_units=>'INCHES'
 ,p_prn_paper_size=>'LETTER'
 ,p_prn_width=>11
 ,p_prn_height=>8.5
 ,p_prn_orientation=>'HORIZONTAL'
-,p_prn_page_header=>'Cumulative'
+,p_prn_page_header=>'Cumulative Results Display'
 ,p_prn_page_header_font_color=>'#000000'
 ,p_prn_page_header_font_family=>'Helvetica'
 ,p_prn_page_header_font_weight=>'normal'
@@ -13650,11 +13667,33 @@ wwv_flow_api.create_ig_report_column(
 ,p_is_visible=>true
 ,p_is_frozen=>false
 );
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(7764640230219142)
+,p_plug_name=>'Search'
+,p_plug_display_sequence=>10
+,p_plug_display_point=>'BODY'
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_attribute_01=>'N'
+,p_attribute_02=>'HTML'
+);
+wwv_flow_api.create_page_button(
+ p_id=>wwv_flow_api.id(7764828057219144)
+,p_button_sequence=>10
+,p_button_plug_id=>wwv_flow_api.id(2144239822194417)
+,p_button_name=>'Search'
+,p_button_action=>'SUBMIT'
+,p_button_template_options=>'#DEFAULT#:t-Button--iconLeft'
+,p_button_template_id=>wwv_flow_api.id(38667641625230978296)
+,p_button_is_hot=>'Y'
+,p_button_image_alt=>'Search'
+,p_button_position=>'REGION_TEMPLATE_EDIT'
+,p_icon_css_classes=>'fa-search'
+);
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(7761855521219114)
 ,p_name=>'P2_REQ_KEY'
 ,p_item_sequence=>10
-,p_item_plug_id=>wwv_flow_api.id(2144239822194417)
+,p_item_plug_id=>wwv_flow_api.id(7764640230219142)
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
 );
@@ -13662,9 +13701,73 @@ wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(7761949977219115)
 ,p_name=>'P2_RQT_KEY'
 ,p_item_sequence=>20
-,p_item_plug_id=>wwv_flow_api.id(2144239822194417)
+,p_item_plug_id=>wwv_flow_api.id(7764640230219142)
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(7764496656219140)
+,p_name=>'P2_DATE_FROM'
+,p_item_sequence=>30
+,p_item_plug_id=>wwv_flow_api.id(7764640230219142)
+,p_prompt=>'Date From'
+,p_format_mask=>'DD/MM/YYYY'
+,p_display_as=>'NATIVE_DATE_PICKER'
+,p_cSize=>30
+,p_colspan=>4
+,p_field_template=>wwv_flow_api.id(38667640514083978295)
+,p_item_template_options=>'#DEFAULT#'
+,p_attribute_04=>'button'
+,p_attribute_05=>'Y'
+,p_attribute_07=>'MONTH_AND_YEAR'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(7764518254219141)
+,p_name=>'P2_DATE_TO'
+,p_item_sequence=>40
+,p_item_plug_id=>wwv_flow_api.id(7764640230219142)
+,p_prompt=>'Date To'
+,p_format_mask=>'DD/MM/YYYY'
+,p_display_as=>'NATIVE_DATE_PICKER'
+,p_cSize=>30
+,p_begin_on_new_line=>'N'
+,p_colspan=>4
+,p_field_template=>wwv_flow_api.id(38667640514083978295)
+,p_item_template_options=>'#DEFAULT#'
+,p_attribute_04=>'button'
+,p_attribute_05=>'Y'
+,p_attribute_07=>'MONTH_AND_YEAR'
+);
+wwv_flow_api.create_page_da_event(
+ p_id=>wwv_flow_api.id(7765056967219146)
+,p_name=>'When Page Load'
+,p_event_sequence=>10
+,p_bind_type=>'bind'
+,p_bind_event_type=>'ready'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(7765128353219147)
+,p_event_id=>wwv_flow_api.id(7765056967219146)
+,p_event_result=>'TRUE'
+,p_action_sequence=>10
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_EXECUTE_PLSQL_CODE'
+,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'BEGIN',
+'    SELECT TO_CHAR(req_relev_date,''DD/MM/YYYY''),',
+'           TO_CHAR(ADD_MONTHS(req_relev_date,-1),''DD/MM/YYYY'')',
+'    INTO   :P2_DATE_TO,',
+'           :P2_DATE_FROM',
+'    FROM   ilms5.request@apex_link REQ',
+'    WHERE  req_key = :P2_REQ_KEY;',
+'EXCEPTION',
+'    WHEN others THEN',
+'        NULL;',
+'END;'))
+,p_attribute_02=>'P2_REQ_KEY,P2_RQT_KEY'
+,p_attribute_03=>'P2_DATE_FROM,P2_DATE_TO'
+,p_attribute_04=>'N'
+,p_wait_for_result=>'Y'
 );
 end;
 /
@@ -13730,6 +13833,11 @@ wwv_flow_api.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_javascript_code_onload=>'$("#rgnSticky").stickyWidget({toggleWidth:true});'
 ,p_inline_css=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'#P6_POS_DISPLAY{',
+'    color :red !important;',
+'}',
+'',
+'',
 '/* Fix IR Column Width */',
 'th#DPT_NAME,td[headers=DPT_NAME]{',
 '  width:200px;  ',
@@ -13770,6 +13878,9 @@ wwv_flow_api.create_page(
 '}'))
 ,p_page_template_options=>'#DEFAULT#'
 ,p_page_comment=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'#P6_POS_DISPLAY{',
+'    color :red !important;',
+'}',
 '',
 '/* MRN Region*/',
 '.mrn_section{',
@@ -13806,7 +13917,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200927202355'
+,p_last_upd_yyyymmddhh24miss=>'20200928151848'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214826760077506)
@@ -14174,11 +14285,17 @@ wwv_flow_api.create_page_plug(
 '             )',
 '),',
 'hierarchical_rqt AS (',
-'    SELECT  /*+ materialize */ * ',
-'    FROM    request_tests',
+'    SELECT  /*+ materialize */ rt.* , ',
+'            (case ',
+'                 when parent_rqt_key IS NULL then rqt_key',
+'                 when parent_rqt_key IS NOT NULL THEN TO_NUMBER(parent_rqt_key||''.''||rqt_key)',
+'             END) AS rt_rank',
+'    FROM    request_tests rt',
 '    START WITH parent_rqt_key IS NULL',
-'    CONNECT BY prior req_key = req_key AND prior rqt_key = parent_rqt_key',
-'    --order siblings by req_RELEV_date DESC',
+'    CONNECT BY prior req_key = req_key ',
+'           --AND prior rqt_key = rqt_key',
+'           AND prior rqt_key = parent_rqt_key',
+'    order siblings by rqt_key DESC',
 ')',
 '    ',
 'SELECT',
@@ -14195,7 +14312,13 @@ wwv_flow_api.create_page_plug(
 '           ELSE ''&nbsp;''||''&nbsp;''||''&nbsp;''||''&nbsp;''||td.td_name ',
 '        END',
 '       )   AS td_name,       ',
-'       (SELECT TRIM(abn.abn_text_icon) FROM ilms5.abnormality@apex_link abn WHERE abn.abn_key = hrqt.abn_key)  AS ABN,',
+'       --(SELECT TRIM(abn.abn_text_icon) FROM ilms5.abnormality@apex_link abn WHERE abn.abn_key = hrqt.abn_key)  AS ABN,',
+'       (CASE',
+'           -- not show abn if it is a panel ',
+'           WHEN hrqt.parent_rqt_key IS NULL AND EXISTS (select 1 from request_test@apex_link rt where rt.req_key = hrqt.req_key and rt.parent_rqt_key = hrqt.rqt_key) THEN NULL',
+'           ELSE  (SELECT TRIM(abn.abn_text_icon) FROM ilms5.abnormality@apex_link abn WHERE abn.abn_key = hrqt.abn_key) ',
+'       ',
+'        END) AS ABN,',
 '       hrqt.rqt_desc AS RESULT,',
 '       (SELECT ref_report FROM ilms5.reference@apex_link WHERE ref_key = hrqt.ref_key AND td_key = td.td_key) AS RANGE,',
 '       (SELECT tu.tu_name FROM ilms5.test_unit@apex_link tu WHERE tu.tu_key = td.tu_key) AS UNIT,',
@@ -14214,16 +14337,17 @@ wwv_flow_api.create_page_plug(
 '           ELSE NULL',
 '        END)  AS CUMULATIVE,               ',
 '       (CASE ',
-'           WHEN hrqt.parent_rqt_key IS NULL AND EXISTS (SELECT 1 FROM REQUEST_TEST_BLOB@apex_link WHERE rqt_key = hrqt.rqt_key AND req_key = hrqt.req_key) THEN ',
+'           WHEN hrqt.parent_rqt_key IS NULL AND EXISTS ( SELECT 1 FROM (SELECT SPF_REPORT FROM SPOOL_FRAME@apex_link WHERE req_key = hrqt.req_key) WHERE SPF_REPORT IS NOT NULL) THEN ',
 '                ''<a href="#"''||               ',
 '                '' class="view_report fa fa-file-pdf-o" data-req-key="''||hrqt.req_key||''" data-rqt-key="''||hrqt.rqt_key|| ''">''||               ',
 '                ''</a>''           ',
 '           ELSE NULL',
-'        END)  AS REPORT',
+'        END)  AS REPORT,',
+'        RT_RANK',
 'FROM    hierarchical_rqt hrqt,',
 '        test_detail@apex_link td',
 'WHERE   hrqt.td_key = td.td_key',
-'ORDER BY hrqt.req_key, hrqt.parent_rqt_key NULLS FIRST,hrqt.rqt_rank'))
+'ORDER BY rt_rank'))
 ,p_plug_source_type=>'NATIVE_IR'
 ,p_ajax_items_to_submit=>'P6_TREE_LINK_KEY,P6_TREE_PAT_KEY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -14486,17 +14610,8 @@ wwv_flow_api.create_worksheet_column(
 ,p_display_order=>110
 ,p_column_identifier=>'F'
 ,p_column_label=>'Rqt Rank'
-,p_allow_filtering=>'N'
-,p_allow_highlighting=>'N'
-,p_allow_ctrl_breaks=>'N'
-,p_allow_aggregations=>'N'
-,p_allow_computations=>'N'
-,p_allow_charting=>'N'
-,p_allow_group_by=>'N'
-,p_allow_pivot=>'N'
-,p_allow_hide=>'N'
 ,p_column_type=>'NUMBER'
-,p_rpt_show_filter_lov=>'N'
+,p_display_text_as=>'HIDDEN'
 );
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(6881530129826020)
@@ -14562,6 +14677,23 @@ wwv_flow_api.create_worksheet_column(
 ,p_column_type=>'STRING'
 ,p_display_text_as=>'HIDDEN'
 );
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7765267748219148)
+,p_db_column_name=>'RT_RANK'
+,p_display_order=>170
+,p_column_identifier=>'R'
+,p_column_label=>'Rt Rank'
+,p_allow_filtering=>'N'
+,p_allow_highlighting=>'N'
+,p_allow_ctrl_breaks=>'N'
+,p_allow_aggregations=>'N'
+,p_allow_computations=>'N'
+,p_allow_charting=>'N'
+,p_allow_group_by=>'N'
+,p_allow_pivot=>'N'
+,p_column_type=>'NUMBER'
+,p_column_alignment=>'RIGHT'
+);
 wwv_flow_api.create_worksheet_rpt(
  p_id=>wwv_flow_api.id(7318464744071081)
 ,p_application_user=>'APXWS_DEFAULT'
@@ -14570,12 +14702,12 @@ wwv_flow_api.create_worksheet_rpt(
 ,p_status=>'PUBLIC'
 ,p_is_default=>'Y'
 ,p_display_rows=>100
-,p_report_columns=>'DPT_NAME:TD_NAME:ABN:RESULT:RANGE:UNIT:COMMENTS:CUMULATIVE:REPORT::DCP_NAME:REQ_RELEV_DATE_DSP'
-,p_sort_column_1=>'REQ_KEY'
+,p_report_columns=>'DCP_NAME:DPT_NAME:TD_NAME:ABN:RESULT:RANGE:UNIT:COMMENTS:CUMULATIVE:REPORT:'
+,p_sort_column_1=>'RT_RANK'
 ,p_sort_direction_1=>'ASC'
-,p_sort_column_2=>'PARENT_RQT_KEY'
-,p_sort_direction_2=>'ASC NULLS FIRST'
-,p_sort_column_3=>'RQT_RANK'
+,p_sort_column_2=>'0'
+,p_sort_direction_2=>'ASC'
+,p_sort_column_3=>'0'
 ,p_sort_direction_3=>'ASC'
 ,p_sort_column_4=>'0'
 ,p_sort_direction_4=>'ASC'
@@ -14587,7 +14719,7 @@ wwv_flow_api.create_worksheet_rpt(
 ,p_break_enabled_on=>'DCP_NAME:DPT_NAME:0:0:0:0'
 );
 wwv_flow_api.create_worksheet_condition(
- p_id=>wwv_flow_api.id(8010892435790014)
+ p_id=>wwv_flow_api.id(8436815723528004)
 ,p_report_id=>wwv_flow_api.id(7318464744071081)
 ,p_name=>'Abnormality'
 ,p_condition_type=>'HIGHLIGHT'
@@ -14680,6 +14812,9 @@ wwv_flow_api.create_page_item(
 ,p_is_persistent=>'N'
 ,p_attribute_01=>'Y'
 );
+end;
+/
+begin
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6863137199823910)
 ,p_name=>'P6_MRN'
@@ -14722,9 +14857,6 @@ wwv_flow_api.create_page_item(
 ,p_attribute_02=>'VALUE'
 ,p_attribute_04=>'Y'
 );
-end;
-/
-begin
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6863949434823910)
 ,p_name=>'P6_POS'
@@ -14732,6 +14864,7 @@ wwv_flow_api.create_page_item(
 ,p_item_sequence=>40
 ,p_item_plug_id=>wwv_flow_api.id(8215206032077510)
 ,p_item_source_plug_id=>wwv_flow_api.id(8214826760077506)
+,p_prompt=>'Blood Group'
 ,p_source=>'BGR_DESCRIPTION'
 ,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_DISPLAY_ONLY'
@@ -15205,18 +15338,16 @@ wwv_flow_api.create_page(
 ,p_dialog_height=>'800'
 ,p_dialog_width=>'1200'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200927182921'
+,p_last_upd_yyyymmddhh24miss=>'20200928110019'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(72620239023029957701)
 ,p_plug_name=>'Comment'
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
-,p_plug_source_type=>'NATIVE_URL'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_attribute_01=>'f?p=&APP_ID.:0:&SESSION.:APPLICATION_PROCESS=CB_GET_PDF_P7:NO'
-,p_attribute_02=>'IFRAME'
-,p_attribute_03=>'width="99%" height=1100'
+,p_attribute_01=>'N'
+,p_attribute_02=>'HTML'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(7604884584730162)
@@ -15233,6 +15364,79 @@ wwv_flow_api.create_page_item(
 ,p_item_plug_id=>wwv_flow_api.id(72620239023029957701)
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(7764362420219139)
+,p_process_sequence=>10
+,p_process_point=>'AFTER_HEADER'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'Render Comment'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'DECLARE',
+'        l_template_blob     BLOB;            ',
+'        l_template_clob     CLOB;',
+'        ',
+'        ',
+'        l_file_size         integer := dbms_lob.lobmaxsize;',
+'        l_dest_offset       integer := 1;',
+'        l_src_offset        integer := 1;',
+'        l_blob_csid         number := dbms_lob.default_csid;',
+'        l_lang_context      number := dbms_lob.default_lang_ctx;',
+'        l_warning           integer;',
+'        l_length            number;        ',
+'BEGIN',
+'',
+'    SELECT  RCEX_LINES as BLOB_CONTENT ',
+'    INTO    l_template_blob',
+'    FROM REQ_COM_REQ_TEST@apex_link reqc,',
+'         REQ_COM_EXT@apex_link rcex',
+'    WHERE reqc.REQC_KEY = rcex.REQC_KEY',
+'    AND reqc.rqt_key = :p7_rqt_key AND reqc.req_key = :p7_req_key;    ',
+'    ',
+'    APEX_COLLECTION.CREATE_OR_TRUNCATE_COLLECTION (',
+'                                        p_collection_name => ''COMMENTS_BLOB''',
+'                                    );  ',
+'    APEX_COLLECTION.ADD_MEMBER (p_collection_name  => ''COMMENTS_BLOB'',                               ',
+'                                p_n001=> :p7_req_key,',
+'                                p_n002=> :p7_rqt_key,',
+'                                p_blob001 => l_template_blob',
+'                                );',
+'',
+'    SELECT blob001',
+'    INTO l_template_blob',
+'    FROM apex_collections',
+'    WHERE collection_name = ''COMMENTS_BLOB''',
+'    AND n001 = :p7_req_key',
+'    AND n002 = :p7_rqt_key;',
+'	-- Convert to Clob',
+'	dbms_lob.createtemporary(l_template_clob, true);',
+'    ',
+'	dbms_lob.converttoclob( l_template_clob,',
+'							l_template_blob,',
+'							l_file_size,',
+'							l_dest_offset,',
+'							l_src_offset,',
+'							l_blob_csid,',
+'							l_lang_context,',
+'							l_warning);      ',
+'',
+'                  ',
+'                            ',
+'							',
+'APEX_UTIL.DOWNLOAD_PRINT_DOCUMENT (',
+'    p_file_name           => ''fz'',',
+'    p_content_disposition => ''inline'',',
+'    p_application_id      => :APP_ID,',
+'    p_report_query_name   => ''DUMMY_QUERY'',',
+'    p_report_layout       => l_template_clob,',
+'    p_report_layout_type  => ''rtf'',',
+'    p_document_format     =>''htm'',',
+'    p_print_server        => null);        ',
+'                          ',
+'END;                                '))
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+,p_process_when_type=>'NEVER'
+,p_process_comment=>'WIP'
 );
 end;
 /
