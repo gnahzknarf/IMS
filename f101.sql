@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   15:24 Monday September 28, 2020
+--   Date and Time:   21:16 Monday September 28, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -119,7 +119,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200928152042'
+,p_last_upd_yyyymmddhh24miss=>'20200928160148'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>9
 ,p_ui_type_name => null
@@ -485,7 +485,8 @@ wwv_flow_api.create_flow_process(
 '    SELECT  SPF_REPORT AS blob_content ',
 '    INTO    v_blob        ',
 '    FROM    SPOOL_FRAME@apex_link',
-'    WHERE     req_key = :p5_req_key',
+'    WHERE   req_key = :p5_req_key',
+'    AND     SPF_IS_LAB = ''F''',
 '    AND rownum = 1',
 '    ;',
 '    --',
@@ -13917,7 +13918,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200928151848'
+,p_last_upd_yyyymmddhh24miss=>'20200928160148'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214826760077506)
@@ -14337,7 +14338,7 @@ wwv_flow_api.create_page_plug(
 '           ELSE NULL',
 '        END)  AS CUMULATIVE,               ',
 '       (CASE ',
-'           WHEN hrqt.parent_rqt_key IS NULL AND EXISTS ( SELECT 1 FROM (SELECT SPF_REPORT FROM SPOOL_FRAME@apex_link WHERE req_key = hrqt.req_key) WHERE SPF_REPORT IS NOT NULL) THEN ',
+'           WHEN hrqt.parent_rqt_key IS NULL AND EXISTS ( SELECT 1 FROM (SELECT SPF_REPORT FROM SPOOL_FRAME@apex_link WHERE req_key = hrqt.req_key AND SPF_IS_LAB = ''F'') WHERE SPF_REPORT IS NOT NULL) THEN ',
 '                ''<a href="#"''||               ',
 '                '' class="view_report fa fa-file-pdf-o" data-req-key="''||hrqt.req_key||''" data-rqt-key="''||hrqt.rqt_key|| ''">''||               ',
 '                ''</a>''           ',
