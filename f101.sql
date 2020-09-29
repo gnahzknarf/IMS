@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   16:55 Tuesday September 29, 2020
+--   Date and Time:   07:46 Wednesday September 30, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -117,7 +117,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200929165418'
+,p_last_upd_yyyymmddhh24miss=>'20200930074358'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>10
 ,p_ui_type_name => null
@@ -18893,6 +18893,7 @@ wwv_flow_api.create_page(
 ,p_name=>'Search'
 ,p_alias=>'SEARCH'
 ,p_step_title=>'Search'
+,p_warn_on_unsaved_changes=>'N'
 ,p_autocomplete_on_off=>'OFF'
 ,p_inline_css=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'img.img_nav{',
@@ -18959,7 +18960,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200929165418'
+,p_last_upd_yyyymmddhh24miss=>'20200930074220'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(6879659107826001)
@@ -19025,7 +19026,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(8737018245220920)
 ,p_name=>'P1_ALLIED_HEALTH'
-,p_item_sequence=>10
+,p_item_sequence=>60
 ,p_item_plug_id=>wwv_flow_api.id(8736609509220916)
 ,p_source=>'#WORKSPACE_IMAGES#Allied Health.bmp'
 ,p_source_type=>'STATIC'
@@ -19041,7 +19042,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(8737152703220921)
 ,p_name=>'P1_BILLING'
-,p_item_sequence=>20
+,p_item_sequence=>80
 ,p_item_plug_id=>wwv_flow_api.id(8736609509220916)
 ,p_source=>'#WORKSPACE_IMAGES#Billing.bmp'
 ,p_source_type=>'STATIC'
@@ -19057,7 +19058,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(8737293825220922)
 ,p_name=>'P1_CARDIOLOGY'
-,p_item_sequence=>30
+,p_item_sequence=>40
 ,p_item_plug_id=>wwv_flow_api.id(8736609509220916)
 ,p_source=>'#WORKSPACE_IMAGES#Cardiology.bmp'
 ,p_source_type=>'STATIC'
@@ -19074,7 +19075,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(8737354211220923)
 ,p_name=>'P1_DOCUMENTS'
-,p_item_sequence=>40
+,p_item_sequence=>70
 ,p_item_plug_id=>wwv_flow_api.id(8736609509220916)
 ,p_source=>'#WORKSPACE_IMAGES#Documents.bmp'
 ,p_source_type=>'STATIC'
@@ -19091,7 +19092,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(8737426827220924)
 ,p_name=>'P1_LABORATORY'
-,p_item_sequence=>50
+,p_item_sequence=>20
 ,p_item_plug_id=>wwv_flow_api.id(8736609509220916)
 ,p_source=>'#WORKSPACE_IMAGES#Laboratory.bmp'
 ,p_source_type=>'STATIC'
@@ -19107,7 +19108,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(8737587501220925)
 ,p_name=>'P1_PHARMACY'
-,p_item_sequence=>60
+,p_item_sequence=>50
 ,p_item_plug_id=>wwv_flow_api.id(8736609509220916)
 ,p_source=>'#WORKSPACE_IMAGES#Pharmacy.bmp'
 ,p_source_type=>'STATIC'
@@ -19123,7 +19124,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(8737637984220926)
 ,p_name=>'P1_RADIOLOGY'
-,p_item_sequence=>70
+,p_item_sequence=>30
 ,p_item_plug_id=>wwv_flow_api.id(8736609509220916)
 ,p_source=>'#WORKSPACE_IMAGES#Radiology.bmp'
 ,p_source_type=>'STATIC'
@@ -19140,7 +19141,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(8737741991220927)
 ,p_name=>'P1_VITALS'
-,p_item_sequence=>80
+,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(8736609509220916)
 ,p_source=>'#WORKSPACE_IMAGES#Vitals.bmp'
 ,p_source_type=>'STATIC'
@@ -19839,7 +19840,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200929153023'
+,p_last_upd_yyyymmddhh24miss=>'20200930074358'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214826760077506)
@@ -19914,7 +19915,8 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_point=>'BODY'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'WITH pat_tests AS(',
-'  SELECT req.pat_key,',
+'  SELECT /*+ materialize */',
+'         req.pat_key,',
 '         req.req_name,',
 '         req.req_key,',
 '         req.req_RELEV_date,',
