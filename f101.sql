@@ -28,12 +28,12 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   16:47 Wednesday September 30, 2020
+--   Date and Time:   22:06 Wednesday September 30, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
 --     Pages:                      7
---       Items:                   88
+--       Items:                   89
 --       Processes:                8
 --       Regions:                 17
 --       Buttons:                  4
@@ -117,7 +117,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200930163908'
+,p_last_upd_yyyymmddhh24miss=>'20200930220544'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>10
 ,p_ui_type_name => null
@@ -19343,13 +19343,17 @@ wwv_flow_api.create_page(
 '.currentrow',
 '{ ',
 ' background-color: #eeeeee !important;',
+'}',
+'',
+'div.t-Dialog-header{',
+'    display:none;',
 '}'))
 ,p_step_template=>wwv_flow_api.id(38667540104923978224)
 ,p_page_template_options=>'#DEFAULT#'
-,p_dialog_height=>'800'
+,p_dialog_height=>'1000'
 ,p_dialog_width=>'1200'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200930163908'
+,p_last_upd_yyyymmddhh24miss=>'20200930220544'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2144239822194417)
@@ -20589,6 +20593,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9246854107235716)
 ,p_plug_name=>'Cumulative Results Chart'
+,p_region_name=>'cumulative_chart_rn'
 ,p_region_template_options=>'#DEFAULT#:t-Region--scrollBody'
 ,p_escape_on_http_output=>'Y'
 ,p_plug_template=>wwv_flow_api.id(38667579460790978250)
@@ -20596,6 +20601,7 @@ wwv_flow_api.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_plug_source_type=>'NATIVE_JET_CHART'
+,p_ajax_items_to_submit=>'P2_LINE_UNIT'
 ,p_plug_query_num_rows=>15
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 );
@@ -20609,6 +20615,7 @@ wwv_flow_api.create_jet_chart(
 ,p_orientation=>'vertical'
 ,p_data_cursor=>'auto'
 ,p_data_cursor_behavior=>'auto'
+,p_hide_and_show_behavior=>'none'
 ,p_hover_behavior=>'dim'
 ,p_stack=>'off'
 ,p_connect_nulls=>'Y'
@@ -20619,20 +20626,166 @@ wwv_flow_api.create_jet_chart(
 ,p_show_series_name=>true
 ,p_show_group_name=>true
 ,p_show_value=>true
-,p_legend_rendered=>'off'
+,p_legend_rendered=>'on'
+,p_legend_position=>'auto'
+);
+wwv_flow_api.create_jet_chart_series(
+ p_id=>wwv_flow_api.id(9248993148235737)
+,p_chart_id=>wwv_flow_api.id(9246900729235717)
+,p_seq=>10
+,p_name=>'Range High'
+,p_data_source_type=>'SQL'
+,p_data_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'  WITH apex_params AS(SELECT',
+'',
+'                    :P2_REQ_KEY AS REQ_KEY,',
+'                    :P2_RQT_KEY AS RQT_KEY,',
+'                    :P2_LINE_TD_NAME AS LINE_TD_NAME,',
+'                    TO_DATE(:P2_DATE_FROM  ,''DD/MM/YYYY'') AS DATE_FROM,',
+'                    TO_DATE(:P2_DATE_TO,''DD/MM/YYYY'') AS DATE_TO,',
+'                    req.pat_key  ',
+'             FROM ilms5.request@apex_link REQ WHERE req.req_key = :P2_REQ_KEY),',
+'        request_tests AS (',
+'            SELECT ',
+'                    td.td_name,',
+'                   to_number(regexp_replace(rqt.rqt_desc, ''[^0-9.]'', '''')) AS rqt_desc,',
+'                   --TO_CHAR(req.req_relev_date,''DD/MM/YYYY HH24:MI:SS'') AS req_relev_date,',
+'                   req.req_relev_date,',
+'                   (SELECT ref_report FROM ilms5.reference@apex_link WHERE ref_key = rqt.ref_key AND td_key = td.td_key) AS RANGE,',
+'                   (SELECT tu.tu_name FROM ilms5.test_unit@apex_link tu WHERE tu.tu_key = td.tu_key) AS UNIT                                ',
+'            FROM    ilms5.request@apex_link REQ,',
+'                    ilms5.request_test@apex_link rqt,',
+'                    test_detail@apex_link td,',
+'                    apex_params params',
+'            WHERE   req.req_key = rqt.req_key',
+'            AND     rqt.td_key = td.td_key',
+'            AND     req.pat_key = params.pat_key',
+'            --AND     req.req_key = params.REQ_KEY',
+'            --AND     rqt.rqt_key = params.RQT_KEY                        ',
+'            AND     td.td_name = params.LINE_TD_NAME',
+'            AND     TRUNC(req.req_relev_date) BETWEEN params.DATE_FROM AND params.DATE_TO',
+'',
+'        ) ',
+'        select rt.*,',
+'        TO_CHAR(req_relev_date,''DD/MM/YYYY HH24:MI'') AS LABEL,',
+'        to_number(regexp_replace(SUBSTR(RANGE,INSTR(RANGE,''-'') +1), ''[^0-9.]'', '''')) AS RANGE_HIGH',
+'        From request_tests rt',
+'--        where rqt_desc is not null',
+'        order by req_relev_date'))
+,p_ajax_items_to_submit=>'P2_REQ_KEY,P2_RQT_KEY,P2_LINE_TD_NAME,P2_DATE_FROM,P2_DATE_TO'
+,p_items_value_column_name=>'RANGE_HIGH'
+,p_items_label_column_name=>'LABEL'
+,p_color=>'#FF3B30'
+,p_line_style=>'dashed'
+,p_line_type=>'auto'
+,p_marker_rendered=>'auto'
+,p_marker_shape=>'auto'
+,p_assigned_to_y2=>'off'
+,p_items_label_rendered=>false
 );
 wwv_flow_api.create_jet_chart_series(
  p_id=>wwv_flow_api.id(9247021284235718)
 ,p_chart_id=>wwv_flow_api.id(9246900729235717)
-,p_seq=>10
-,p_name=>'New'
+,p_seq=>30
+,p_name=>'Result'
 ,p_data_source_type=>'SQL'
 ,p_data_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'SELECT 1,2,3',
-'from dual'))
-,p_items_value_column_name=>'2'
-,p_items_label_column_name=>'1'
+'  WITH apex_params AS(SELECT',
+'',
+'                    :P2_REQ_KEY AS REQ_KEY,',
+'                    :P2_RQT_KEY AS RQT_KEY,',
+'                    :P2_LINE_TD_NAME AS LINE_TD_NAME,',
+'                    TO_DATE(:P2_DATE_FROM  ,''DD/MM/YYYY'') AS DATE_FROM,',
+'                    TO_DATE(:P2_DATE_TO,''DD/MM/YYYY'') AS DATE_TO,',
+'                    req.pat_key  ',
+'             FROM ilms5.request@apex_link REQ WHERE req.req_key = :P2_REQ_KEY),',
+'        request_tests AS (',
+'            SELECT ',
+'                    td.td_name,',
+'                   to_number(regexp_replace(rqt.rqt_desc, ''[^0-9.]'', '''')) AS rqt_desc,',
+'                   --TO_CHAR(req.req_relev_date,''DD/MM/YYYY HH24:MI:SS'') AS req_relev_date,',
+'                   req.req_relev_date,',
+'                   (SELECT ref_report FROM ilms5.reference@apex_link WHERE ref_key = rqt.ref_key AND td_key = td.td_key) AS RANGE,',
+'                   (SELECT tu.tu_name FROM ilms5.test_unit@apex_link tu WHERE tu.tu_key = td.tu_key) AS UNIT                                ',
+'            FROM    ilms5.request@apex_link REQ,',
+'                    ilms5.request_test@apex_link rqt,',
+'                    test_detail@apex_link td,',
+'                    apex_params params',
+'            WHERE   req.req_key = rqt.req_key',
+'            AND     rqt.td_key = td.td_key',
+'            AND     req.pat_key = params.pat_key',
+'            --AND     req.req_key = params.REQ_KEY',
+'            --AND     rqt.rqt_key = params.RQT_KEY                        ',
+'            AND     td.td_name = params.LINE_TD_NAME',
+'            AND     TRUNC(req.req_relev_date) BETWEEN params.DATE_FROM AND params.DATE_TO',
+'',
+'        ) ',
+'        select rt.* ,',
+'        TO_CHAR(req_relev_date,''DD/MM/YYYY HH24:MI'') AS LABEL',
+'        From request_tests rt',
+'--        where rqt_desc is not null',
+'        order by req_relev_date'))
+,p_ajax_items_to_submit=>'P2_REQ_KEY,P2_RQT_KEY,P2_LINE_TD_NAME,P2_DATE_FROM,P2_DATE_TO'
+,p_items_value_column_name=>'RQT_DESC'
+,p_items_label_column_name=>'LABEL'
+,p_color=>'#34AADC'
 ,p_line_style=>'solid'
+,p_line_type=>'auto'
+,p_marker_rendered=>'auto'
+,p_marker_shape=>'auto'
+,p_assigned_to_y2=>'off'
+,p_items_label_rendered=>true
+,p_items_label_position=>'auto'
+);
+wwv_flow_api.create_jet_chart_series(
+ p_id=>wwv_flow_api.id(9248845490235736)
+,p_chart_id=>wwv_flow_api.id(9246900729235717)
+,p_seq=>40
+,p_name=>'Range Low'
+,p_data_source_type=>'SQL'
+,p_data_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'  WITH apex_params AS(SELECT',
+'',
+'                    :P2_REQ_KEY AS REQ_KEY,',
+'                    :P2_RQT_KEY AS RQT_KEY,',
+'                    :P2_LINE_TD_NAME AS LINE_TD_NAME,',
+'                    TO_DATE(:P2_DATE_FROM  ,''DD/MM/YYYY'') AS DATE_FROM,',
+'                    TO_DATE(:P2_DATE_TO,''DD/MM/YYYY'') AS DATE_TO,',
+'                    req.pat_key  ',
+'             FROM ilms5.request@apex_link REQ WHERE req.req_key = :P2_REQ_KEY),',
+'        request_tests AS (',
+'            SELECT ',
+'                    td.td_name,',
+'                   to_number(regexp_replace(rqt.rqt_desc, ''[^0-9.]'', '''')) AS rqt_desc,                   ',
+'                   req.req_relev_date,',
+'                   (SELECT ref_report FROM ilms5.reference@apex_link WHERE ref_key = rqt.ref_key AND td_key = td.td_key) AS RANGE,',
+'                   (SELECT tu.tu_name FROM ilms5.test_unit@apex_link tu WHERE tu.tu_key = td.tu_key) AS UNIT                                ',
+'            FROM    ilms5.request@apex_link REQ,',
+'                    ilms5.request_test@apex_link rqt,',
+'                    test_detail@apex_link td,',
+'                    apex_params params',
+'            WHERE   req.req_key = rqt.req_key',
+'            AND     rqt.td_key = td.td_key',
+'            AND     req.pat_key = params.pat_key',
+'            --AND     req.req_key = params.REQ_KEY',
+'            --AND     rqt.rqt_key = params.RQT_KEY                        ',
+'            AND     td.td_name = params.LINE_TD_NAME',
+'            AND     TRUNC(req.req_relev_date) BETWEEN params.DATE_FROM AND params.DATE_TO',
+'',
+'        ) ',
+'        select rt.*,',
+'        TO_CHAR(req_relev_date,''DD/MM/YYYY HH24:MI'') AS LABEL,',
+'        to_number(regexp_replace(SUBSTR(RANGE,1,INSTR(RANGE,''-'') -1), ''[^0-9.]'', '''')) AS RANGE_LOW',
+'        From request_tests rt',
+'--        where rqt_desc is not null',
+'        ',
+'        order by req_relev_date',
+''))
+,p_ajax_items_to_submit=>'P2_REQ_KEY,P2_RQT_KEY,P2_LINE_TD_NAME,P2_DATE_FROM,P2_DATE_TO'
+,p_items_value_column_name=>'RANGE_LOW'
+,p_items_label_column_name=>'LABEL'
+,p_color=>'#4CD964'
+,p_line_style=>'dashed'
 ,p_line_type=>'auto'
 ,p_marker_rendered=>'auto'
 ,p_marker_shape=>'auto'
@@ -20644,6 +20797,8 @@ wwv_flow_api.create_jet_chart_axis(
 ,p_chart_id=>wwv_flow_api.id(9246900729235717)
 ,p_axis=>'x'
 ,p_is_rendered=>'on'
+,p_title=>'Relevant Date'
+,p_title_font_size=>'18'
 ,p_format_scaling=>'auto'
 ,p_scaling=>'linear'
 ,p_baseline_scaling=>'zero'
@@ -20656,16 +20811,18 @@ wwv_flow_api.create_jet_chart_axis(
 wwv_flow_api.create_jet_chart_axis(
  p_id=>wwv_flow_api.id(9247235625235720)
 ,p_chart_id=>wwv_flow_api.id(9246900729235717)
+,p_static_id=>'y-axis'
 ,p_axis=>'y'
 ,p_is_rendered=>'on'
+,p_title=>'&P2_LINE_UNIT.'
 ,p_format_type=>'decimal'
-,p_decimal_places=>0
+,p_decimal_places=>1
 ,p_format_scaling=>'none'
 ,p_scaling=>'linear'
-,p_baseline_scaling=>'zero'
+,p_baseline_scaling=>'min'
 ,p_position=>'auto'
 ,p_major_tick_rendered=>'on'
-,p_minor_tick_rendered=>'off'
+,p_minor_tick_rendered=>'on'
 ,p_tick_label_rendered=>'on'
 );
 wwv_flow_api.create_page_button(
@@ -20710,6 +20867,8 @@ wwv_flow_api.create_page_item(
 ,p_colspan=>4
 ,p_field_template=>wwv_flow_api.id(38667640514083978295)
 ,p_item_template_options=>'#DEFAULT#'
+,p_attribute_02=>'-2y'
+,p_attribute_03=>'+0d'
 ,p_attribute_04=>'button'
 ,p_attribute_05=>'Y'
 ,p_attribute_07=>'MONTH_AND_YEAR'
@@ -20727,6 +20886,7 @@ wwv_flow_api.create_page_item(
 ,p_colspan=>4
 ,p_field_template=>wwv_flow_api.id(38667640514083978295)
 ,p_item_template_options=>'#DEFAULT#'
+,p_attribute_03=>'+0d'
 ,p_attribute_04=>'button'
 ,p_attribute_05=>'Y'
 ,p_attribute_07=>'MONTH_AND_YEAR'
@@ -21112,6 +21272,14 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(9248362409235731)
 ,p_name=>'P2_LINE_TD_NAME'
+,p_item_sequence=>20
+,p_item_plug_id=>wwv_flow_api.id(9246854107235716)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(9248502344235733)
+,p_name=>'P2_LINE_UNIT'
 ,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(9246854107235716)
 ,p_display_as=>'NATIVE_HIDDEN'
@@ -21270,9 +21438,9 @@ wwv_flow_api.create_page_da_action(
 ,p_action_sequence=>10
 ,p_execute_on_page_init=>'Y'
 ,p_action=>'NATIVE_JAVASCRIPT_CODE'
+,p_affected_elements_type=>'ITEM'
+,p_affected_elements=>'P2_LINE_UNIT'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'',
-'',
 '//set color, function defined on page propery',
 'irRowhighLight(this.triggeringElement);',
 '',
@@ -21280,7 +21448,41 @@ wwv_flow_api.create_page_da_action(
 '              .closest(''tr'')  ',
 '              .find(''td[headers="TD_NAME"]'').text(); ',
 'console.log("TD_NAME",id);',
-'apex.item("P2_LINE_TD_NAME").setValue(id);'))
+'apex.item("P2_LINE_TD_NAME").setValue(id);',
+'',
+'',
+'var range =  $(this.triggeringElement)  ',
+'              .closest(''tr'')  ',
+'              .find(''td[headers="RANGE"]'').text(); ',
+'',
+'var units =  $(this.triggeringElement)  ',
+'              .closest(''tr'')  ',
+'              .find(''td[headers="UNITS"]'').text(); ',
+'',
+'//apex.item("P2_LINE_UNIT").setValue(units);',
+'console.log("unit",units);',
+'apex.item("P2_LINE_UNIT").setValue(units);',
+'',
+'var title = "Cumulative Results Chart : " + id +" " + range + " " + units ; ',
+'',
+'$("#cumulative_chart_rn_heading").text(title);',
+'',
+'',
+'//This is a dummy process that saves client value to session state so they can be used by y axis',
+'//apex.server.process(''DUMMY'',{pageItems: ''#P2_LINE_UNIT,#P2_LINE_TD_NAME''},{dataType: "text"});'))
+);
+end;
+/
+begin
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(9248434260235732)
+,p_event_id=>wwv_flow_api.id(9247743222235725)
+,p_event_result=>'TRUE'
+,p_action_sequence=>30
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_REFRESH'
+,p_affected_elements_type=>'REGION'
+,p_affected_region_id=>wwv_flow_api.id(9246854107235716)
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(8735927553220909)
