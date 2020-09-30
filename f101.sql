@@ -28,16 +28,16 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   14:02 Wednesday September 30, 2020
+--   Date and Time:   16:47 Wednesday September 30, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
 --     Pages:                      7
---       Items:                   87
+--       Items:                   88
 --       Processes:                8
 --       Regions:                 17
 --       Buttons:                  4
---       Dynamic Actions:         15
+--       Dynamic Actions:         16
 --     Shared Components:
 --       Logic:
 --         Processes:              2
@@ -117,7 +117,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200930135855'
+,p_last_upd_yyyymmddhh24miss=>'20200930163908'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>10
 ,p_ui_type_name => null
@@ -19332,12 +19332,24 @@ wwv_flow_api.create_page(
 ,p_page_mode=>'MODAL'
 ,p_step_title=>'Cumulative'
 ,p_autocomplete_on_off=>'OFF'
+,p_javascript_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'function irRowhighLight( pThis ){',
+'  $(''td'').removeClass(''currentrow'');',
+'  //$(pThis).parent().parent().children().addClass(''currentrow'') ;  ',
+'    $(pThis).closest(''tr'').children().addClass(''currentrow'') ;  ',
+' ',
+'}'))
+,p_inline_css=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'.currentrow',
+'{ ',
+' background-color: #eeeeee !important;',
+'}'))
 ,p_step_template=>wwv_flow_api.id(38667540104923978224)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_dialog_height=>'800'
 ,p_dialog_width=>'1200'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200930132215'
+,p_last_upd_yyyymmddhh24miss=>'20200930163908'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2144239822194417)
@@ -20500,6 +20512,9 @@ wwv_flow_api.create_worksheet_column(
 ,p_display_condition_type=>'ITEM_IS_NOT_NULL'
 ,p_display_condition=>'P2_LABEL_C047'
 );
+end;
+/
+begin
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(9136794809845547)
 ,p_db_column_name=>'C048'
@@ -20522,9 +20537,6 @@ wwv_flow_api.create_worksheet_column(
 ,p_display_condition_type=>'ITEM_IS_NOT_NULL'
 ,p_display_condition=>'P2_LABEL_C048'
 );
-end;
-/
-begin
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(9136806004845548)
 ,p_db_column_name=>'C049'
@@ -20586,7 +20598,6 @@ wwv_flow_api.create_page_plug(
 ,p_plug_source_type=>'NATIVE_JET_CHART'
 ,p_plug_query_num_rows=>15
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_plug_display_condition_type=>'NEVER'
 );
 wwv_flow_api.create_jet_chart(
  p_id=>wwv_flow_api.id(9246900729235717)
@@ -21098,6 +21109,14 @@ wwv_flow_api.create_page_item(
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
 );
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(9248362409235731)
+,p_name=>'P2_LINE_TD_NAME'
+,p_item_sequence=>10
+,p_item_plug_id=>wwv_flow_api.id(9246854107235716)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(8736077381220910)
 ,p_name=>'Search'
@@ -21206,7 +21225,7 @@ wwv_flow_api.create_page_da_action(
  p_id=>wwv_flow_api.id(9138943002845619)
 ,p_event_id=>wwv_flow_api.id(8736077381220910)
 ,p_event_result=>'TRUE'
-,p_action_sequence=>30
+,p_action_sequence=>50
 ,p_execute_on_page_init=>'Y'
 ,p_action=>'NATIVE_REFRESH'
 ,p_affected_elements_type=>'REGION'
@@ -21233,6 +21252,35 @@ wwv_flow_api.create_page_da_action(
 '$("td:contains(''+'')").css(''color'',''red'');',
 '$("td:contains(''-'')").css(''color'',''red'');',
 '$("td[headers=''RANGE'']").css(''color'','''');'))
+);
+wwv_flow_api.create_page_da_event(
+ p_id=>wwv_flow_api.id(9247743222235725)
+,p_name=>'Click IR Row'
+,p_event_sequence=>40
+,p_triggering_element_type=>'JQUERY_SELECTOR'
+,p_triggering_element=>'td'
+,p_bind_type=>'live'
+,p_bind_delegate_to_selector=>'#cumulative_dsp_rn'
+,p_bind_event_type=>'click'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(9247878443235726)
+,p_event_id=>wwv_flow_api.id(9247743222235725)
+,p_event_result=>'TRUE'
+,p_action_sequence=>10
+,p_execute_on_page_init=>'Y'
+,p_action=>'NATIVE_JAVASCRIPT_CODE'
+,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'',
+'',
+'//set color, function defined on page propery',
+'irRowhighLight(this.triggeringElement);',
+'',
+'var id = $(this.triggeringElement)  ',
+'              .closest(''tr'')  ',
+'              .find(''td[headers="TD_NAME"]'').text(); ',
+'console.log("TD_NAME",id);',
+'apex.item("P2_LINE_TD_NAME").setValue(id);'))
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(8735927553220909)
@@ -21402,7 +21450,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200930135855'
+,p_last_upd_yyyymmddhh24miss=>'20200930160130'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214826760077506)
@@ -22561,17 +22609,6 @@ wwv_flow_api.create_page_da_action(
 ,p_affected_elements_type=>'BUTTON'
 ,p_affected_button_id=>wwv_flow_api.id(6859058338823901)
 ,p_attribute_01=>'P6_TREE_SEARCH'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(6876598459823920)
-,p_event_id=>wwv_flow_api.id(6875099063823920)
-,p_event_result=>'TRUE'
-,p_action_sequence=>30
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_JAVASCRIPT_CODE'
-,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'// set title  chemical_pathology_rn_heading',
-'$("#chemical_pathology_rn_heading").text("Chemical Pathology");'))
 );
 wwv_flow_api.create_page_da_action(
  p_id=>wwv_flow_api.id(6880417976826009)
