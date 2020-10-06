@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   10:03 Sunday October 4, 2020
+--   Date and Time:   15:39 Tuesday October 6, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -36,7 +36,7 @@ prompt APPLICATION 101 - DEMO
 --       Items:                   88
 --       Processes:                9
 --       Regions:                 17
---       Buttons:                  4
+--       Buttons:                  3
 --       Dynamic Actions:         17
 --     Shared Components:
 --       Logic:
@@ -117,7 +117,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201004100121'
+,p_last_upd_yyyymmddhh24miss=>'20201006153735'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>28
 ,p_ui_type_name => null
@@ -19462,7 +19462,7 @@ wwv_flow_api.create_page(
 ,p_dialog_height=>'1000'
 ,p_dialog_width=>'1200'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201003115339'
+,p_last_upd_yyyymmddhh24miss=>'20201006153735'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2144239822194417)
@@ -20924,20 +20924,6 @@ wwv_flow_api.create_jet_chart_axis(
 ,p_minor_tick_rendered=>'on'
 ,p_tick_label_rendered=>'on'
 );
-wwv_flow_api.create_page_button(
- p_id=>wwv_flow_api.id(7764828057219144)
-,p_button_sequence=>10
-,p_button_plug_id=>wwv_flow_api.id(2144239822194417)
-,p_button_name=>'Search'
-,p_button_action=>'DEFINED_BY_DA'
-,p_button_template_options=>'#DEFAULT#:t-Button--iconLeft'
-,p_button_template_id=>wwv_flow_api.id(38667641625230978296)
-,p_button_is_hot=>'Y'
-,p_button_image_alt=>'Search'
-,p_button_position=>'REGION_TEMPLATE_EDIT'
-,p_warn_on_unsaved_changes=>null
-,p_icon_css_classes=>'fa-search'
-);
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(7761855521219114)
 ,p_name=>'P2_REQ_KEY'
@@ -21375,26 +21361,6 @@ wwv_flow_api.create_page_item(
 ,p_attribute_01=>'Y'
 );
 wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(8736077381220910)
-,p_name=>'Search'
-,p_event_sequence=>20
-,p_triggering_element_type=>'BUTTON'
-,p_triggering_button_id=>wwv_flow_api.id(7764828057219144)
-,p_bind_type=>'bind'
-,p_bind_event_type=>'click'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(7765472904219150)
-,p_event_id=>wwv_flow_api.id(8736077381220910)
-,p_event_result=>'TRUE'
-,p_action_sequence=>30
-,p_execute_on_page_init=>'Y'
-,p_action=>'NATIVE_JAVASCRIPT_CODE'
-,p_affected_elements_type=>'ITEM'
-,p_affected_elements=>'P2_LABEL_C004'
-,p_attribute_01=>'cims_apex.cims.search();'
-);
-wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(9247377582235721)
 ,p_name=>'After Refresh Report'
 ,p_event_sequence=>30
@@ -21459,6 +21425,33 @@ wwv_flow_api.create_page_da_action(
 ,p_action=>'NATIVE_HIDE'
 ,p_affected_elements_type=>'REGION'
 ,p_affected_region_id=>wwv_flow_api.id(2144239822194417)
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(9249249207235740)
+,p_event_id=>wwv_flow_api.id(13100426278878504)
+,p_event_result=>'TRUE'
+,p_action_sequence=>30
+,p_execute_on_page_init=>'Y'
+,p_action=>'NATIVE_JAVASCRIPT_CODE'
+,p_attribute_01=>'cims_apex.cims.search();'
+);
+wwv_flow_api.create_page_da_event(
+ p_id=>wwv_flow_api.id(9249082688235738)
+,p_name=>'Search When Date From/To changes'
+,p_event_sequence=>60
+,p_triggering_element_type=>'ITEM'
+,p_triggering_element=>'P2_DATE_FROM,P2_DATE_TO'
+,p_bind_type=>'bind'
+,p_bind_event_type=>'change'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(7765472904219150)
+,p_event_id=>wwv_flow_api.id(9249082688235738)
+,p_event_result=>'TRUE'
+,p_action_sequence=>10
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_JAVASCRIPT_CODE'
+,p_attribute_01=>'cims_apex.cims.search();'
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(8735927553220909)
