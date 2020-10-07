@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   15:39 Tuesday October 6, 2020
+--   Date and Time:   19:13 Wednesday October 7, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -117,7 +117,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201006153735'
+,p_last_upd_yyyymmddhh24miss=>'20201007191336'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>28
 ,p_ui_type_name => null
@@ -21638,7 +21638,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201004095642'
+,p_last_upd_yyyymmddhh24miss=>'20201007191336'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214826760077506)
@@ -21705,6 +21705,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214097752077499)
 ,p_plug_name=>'Tree Region'
+,p_region_name=>'tree_rn'
 ,p_parent_plug_id=>wwv_flow_api.id(8214766152077505)
 ,p_region_template_options=>'#DEFAULT#:t-Region--noPadding:t-Region--removeHeader:t-Region--scrollBody'
 ,p_escape_on_http_output=>'Y'
@@ -21796,7 +21797,7 @@ wwv_flow_api.create_page_plug(
 '     END SELECTED,',
 '    /* Optional - set if this item is expanded or not (0 or null - not expanded; 1 - expanded)*/',
 '     CASE',
-'         WHEN ROWNUM = 1 THEN 1',
+'         WHEN ROWNUM =1 THEN 1',
 '         ELSE 0',
 '     END AS EXPANDED,',
 '    /* Optional - enable or disable checkbox for this item (0 or null - no checkbox; 1 - checkbox)*/',
@@ -22515,6 +22516,23 @@ wwv_flow_api.create_page_item(
 ,p_name=>'P6_TREE_LINK_KEY'
 ,p_item_sequence=>50
 ,p_item_plug_id=>wwv_flow_api.id(8214766152077505)
+,p_item_default=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'WITH pat_tests AS(',
+'  SELECT max(req.req_RELEV_date) AS req_RELEV_date',
+'    FROM ilms5.request@apex_link           req,',
+'         ilms5.request_test@apex_link      rqt,',
+'         ilms5.test_detail@apex_link       td',
+'   WHERE req.req_key = rqt.req_key',
+'     AND rqt.td_key = td.td_key',
+'     AND rqt.parent_rqt_key IS NULL',
+'     AND rqt.RQT_IS_DELETED = ''F''',
+'     AND (rqt.RQT_IS_DORMANT = ''F'' OR',
+'         (rqt.RQT_DESC IS NOT NULL AND TD.TD_TEST_TYPE NOT IN (''E'',''S'')))',
+'     AND req.pat_key = :P6_PAT_KEY',
+')',
+'SELECT TO_CHAR(req_RELEV_date,''YYYYMMDD'')',
+'FROM pat_tests'))
+,p_item_default_type=>'SQL_QUERY'
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_warn_on_unsaved_changes=>'I'
 ,p_attribute_01=>'Y'
@@ -22809,7 +22827,7 @@ wwv_flow_api.create_page_da_action(
 ,p_event_id=>wwv_flow_api.id(6875099063823920)
 ,p_event_result=>'TRUE'
 ,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
+,p_execute_on_page_init=>'Y'
 ,p_action=>'PLUGIN_APEX.ITEMS.WITH.BUTTONS'
 ,p_affected_elements_type=>'BUTTON'
 ,p_affected_button_id=>wwv_flow_api.id(6859058338823901)
@@ -22823,7 +22841,7 @@ wwv_flow_api.create_page_da_action(
 ,p_execute_on_page_init=>'Y'
 ,p_action=>'NATIVE_SET_VALUE'
 ,p_affected_elements_type=>'ITEM'
-,p_affected_elements=>'P6_TREE_LINK_KEY,P6_TREE_PAT_KEY'
+,p_affected_elements=>'P6_TREE_PAT_KEY'
 ,p_attribute_01=>'STATIC_ASSIGNMENT'
 ,p_attribute_09=>'N'
 ,p_wait_for_result=>'Y'
@@ -22833,7 +22851,7 @@ wwv_flow_api.create_page_da_action(
 ,p_event_id=>wwv_flow_api.id(6875099063823920)
 ,p_event_result=>'TRUE'
 ,p_action_sequence=>50
-,p_execute_on_page_init=>'N'
+,p_execute_on_page_init=>'Y'
 ,p_action=>'NATIVE_REFRESH'
 ,p_affected_elements_type=>'REGION'
 ,p_affected_region_id=>wwv_flow_api.id(8844515454174681)
@@ -22867,20 +22885,11 @@ wwv_flow_api.create_page_da_event(
 ,p_bind_event_type=>'change'
 );
 wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(6872829647823917)
-,p_event_id=>wwv_flow_api.id(6872305515823917)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_JAVASCRIPT_CODE'
-,p_attribute_01=>'cims_apex.cims.whenItemChange(this);'
-);
-wwv_flow_api.create_page_da_action(
  p_id=>wwv_flow_api.id(9247658733235724)
 ,p_event_id=>wwv_flow_api.id(6872305515823917)
 ,p_event_result=>'TRUE'
-,p_action_sequence=>20
-,p_execute_on_page_init=>'N'
+,p_action_sequence=>10
+,p_execute_on_page_init=>'Y'
 ,p_action=>'NATIVE_SET_VALUE'
 ,p_affected_elements_type=>'ITEM'
 ,p_affected_elements=>'P6_TREE_ACTIVE_NODE_ID'
@@ -22888,8 +22897,17 @@ wwv_flow_api.create_page_da_action(
 ,p_attribute_04=>'SUBSTR(:P6_TREE_LINK_KEY,1,10)'
 ,p_attribute_07=>'P6_TREE_LINK_KEY'
 ,p_attribute_08=>'Y'
-,p_attribute_09=>'N'
+,p_attribute_09=>'Y'
 ,p_wait_for_result=>'Y'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(6872829647823917)
+,p_event_id=>wwv_flow_api.id(6872305515823917)
+,p_event_result=>'TRUE'
+,p_action_sequence=>30
+,p_execute_on_page_init=>'Y'
+,p_action=>'NATIVE_JAVASCRIPT_CODE'
+,p_attribute_01=>'cims_apex.cims.whenItemChange(this);'
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(6874121260823920)
