@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   19:13 Wednesday October 7, 2020
+--   Date and Time:   15:10 Thursday October 8, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -117,9 +117,9 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201007191336'
+,p_last_upd_yyyymmddhh24miss=>'20201008150846'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
-,p_files_version=>28
+,p_files_version=>44
 ,p_ui_type_name => null
 );
 end;
@@ -4231,6 +4231,148 @@ wwv_flow_api.create_app_static_file(
 ,p_file_content => wwv_flow_api.varchar2_to_blob(wwv_flow_api.g_varchar2_table)
 );
 null;
+end;
+/
+prompt --application/shared_components/files/collected_ico
+begin
+wwv_flow_api.g_varchar2_table := wwv_flow_api.empty_varchar2_table;
+wwv_flow_api.g_varchar2_table(1) := '000001000100101010000000000028010000160000002800000010000000200000000100040000000000C00000000000000000000000000000000000000000000000000080000080000000808000800000008000800080800000C0C0C000808080000000';
+wwv_flow_api.g_varchar2_table(2) := 'FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000022200000000000002020000000000002002200000000000';
+wwv_flow_api.g_varchar2_table(3) := '000020000000000000000200000000000000020000000000000000200000000000000000000000000000000000000000000000000000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FDFF0000F8FF0000FAFF0000F67F0000FF7F0000FFBF0000FFBF';
+wwv_flow_api.g_varchar2_table(4) := '0000FFDF0000FFFF0000FFFF0000FFFF0000';
+wwv_flow_api.create_app_static_file(
+ p_id=>wwv_flow_api.id(15301828405580623)
+,p_file_name=>'COLLECTED.ICO'
+,p_mime_type=>'image/x-icon'
+,p_file_charset=>'utf-8'
+,p_file_content => wwv_flow_api.varchar2_to_blob(wwv_flow_api.g_varchar2_table)
+);
+end;
+/
+prompt --application/shared_components/files/human_patient_ico
+begin
+wwv_flow_api.g_varchar2_table := wwv_flow_api.empty_varchar2_table;
+wwv_flow_api.g_varchar2_table(1) := '000001000100101010000000000028010000160000002800000010000000200000000100040000000000C0000000000000000000000000000000000000000000000000008000008000000080800080000000800080008080000080808000C0C0C0000000';
+wwv_flow_api.g_varchar2_table(2) := 'FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0000000000000000000000000000000000000007777700000000007EEEEE7000000007EEEEEEE70000007EEEEEEEEE700007EEEEEEEEEEE70007EEEEECCEEEE70007EEEECCCEEEE70007EE';
+wwv_flow_api.g_varchar2_table(3) := 'ECCECCEEE70007EECCEECCEEE700007EEEEEECCE70000007EEEEECC7000000007EEEEECC000000000777770CC0000000000000000C00FFFF0000FFFF0000F83F0000F01F0000E00F0000C00700008003000080030000800300008003000080030000C007';
+wwv_flow_api.g_varchar2_table(4) := '0000E00F0000F00F0000F8270000FFFB0000';
+wwv_flow_api.create_app_static_file(
+ p_id=>wwv_flow_api.id(15302170912581129)
+,p_file_name=>'Human_Patient.ico'
+,p_mime_type=>'image/x-icon'
+,p_file_charset=>'utf-8'
+,p_file_content => wwv_flow_api.varchar2_to_blob(wwv_flow_api.g_varchar2_table)
+);
+end;
+/
+prompt --application/shared_components/files/misc02_ico
+begin
+wwv_flow_api.g_varchar2_table := wwv_flow_api.empty_varchar2_table;
+wwv_flow_api.g_varchar2_table(1) := '0000010002002020100000000000E8020000260000001010100000000000280100000E0300002800000020000000400000000100040000000000800200000000000000000000000000000000000000000000000080000080000000808000800000008000';
+wwv_flow_api.g_varchar2_table(2) := '80008080000080808000C0C0C0000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+wwv_flow_api.g_varchar2_table(3) := '000000000000000000000000000000000000000000000000099999999999999999999990000000000999999999999999999999900000000000999999999FF999999999000000000000999999999FF9999999990000000000000999999999999999999000';
+wwv_flow_api.g_varchar2_table(4) := '000000000009999999999999999990000000000000009999999FF999999900000000000000009999999FF99999990000000000000000099999FFFF9999900000000000000000099999FFFF9999900000000000000000009999FFFF999900000000000000';
+wwv_flow_api.g_varchar2_table(5) := '0000009999FFFF9999000000000000000000000999FFFF9990000000000000000000000999FFFF99900000000000000000000000999FF9990000000000000000000000009999999900000000000000000000000009999990000000000000000000000000';
+wwv_flow_api.g_varchar2_table(6) := '09999990000000000000000000000000009999000000000000000000000000000099990000000000000000000000000000099000000000000000000000000000000990000000000000000000000000000000000000000000000000000000000000000000';
+wwv_flow_api.g_varchar2_table(7) := '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800001FF800001FFC00003FFC00003FFE00007FFE00007FFF00';
+wwv_flow_api.g_varchar2_table(8) := '00FFFF0000FFFF8001FFFF8001FFFFC003FFFFC003FFFFE007FFFFE007FFFFF00FFFFFF00FFFFFF81FFFFFF81FFFFFFC3FFFFFFC3FFFFFFE7FFFFFFE7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF280000001000000020000000010004000000';
+wwv_flow_api.g_varchar2_table(9) := '0000C0000000000000000000000000000000000000000000000000008000008000000080800080000000800080008080000080808000C0C0C0000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF000000000000000000000000000000';
+wwv_flow_api.g_varchar2_table(10) := '000000999999999999000099999FF9999900000999999999900000099999999990000000999FF99900000000999FF99900000000099FF99000000000099FF990000000000099990000000000009999000000000000099000000000000009900000000000';
+wwv_flow_api.g_varchar2_table(11) := '0000000000000000000000000000FFFF0000FFFF0000C0030000C0030000E0070000E0070000F00F0000F00F0000F81F0000F81F0000FC3F0000FC3F0000FE7F0000FE7F0000FFFF0000FFFF0000';
+wwv_flow_api.create_app_static_file(
+ p_id=>wwv_flow_api.id(15302454367581560)
+,p_file_name=>'Misc02.ico'
+,p_mime_type=>'image/x-icon'
+,p_file_charset=>'utf-8'
+,p_file_content => wwv_flow_api.varchar2_to_blob(wwv_flow_api.g_varchar2_table)
+);
+end;
+/
+prompt --application/shared_components/files/misc23_ico
+begin
+wwv_flow_api.g_varchar2_table := wwv_flow_api.empty_varchar2_table;
+wwv_flow_api.g_varchar2_table(1) := '0000010002002020100000000000E8020000260000001010100000000000280100000E0300002800000020000000400000000100040000000000800200000000000000000000000000000000000000000000000080000080000000808000800000008000';
+wwv_flow_api.g_varchar2_table(2) := '80008080000080808000C0C0C0000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+wwv_flow_api.g_varchar2_table(3) := '00000000000000000000000000000000000000000000000000000000999999900000000000000000000000999999999990000000000000000000999999999999999000000000000000099999999999999999000000000000009999999999999999999000';
+wwv_flow_api.g_varchar2_table(4) := '0000000000999999999999999999900000000000099999999999999999999900000000000999999999999999999999000000000099999999999999999999999000000000999FFFFFFFFFFFFFFFFF999000000000999FFFFFFFFFFFFFFFFF999000000000';
+wwv_flow_api.g_varchar2_table(5) := '999FFFFFFFFFFFFFFFFF999000000000999FFFFFFFFFFFFFFFFF999000000000999FFFFFFFFFFFFFFFFF99900000000099999999999999999999999000000000099999999999999999999900000000000999999999999999999999000000000000999999';
+wwv_flow_api.g_varchar2_table(6) := '99999999999990000000000000999999999999999999900000000000000999999999999999990000000000000000999999999999999000000000000000000099999999999000000000000000000000009999999000000000000000000000000000000000';
+wwv_flow_api.g_varchar2_table(7) := '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF01FFFFFC007FFFF0001FFFE0000FFFC00007FFC00007FF800';
+wwv_flow_api.g_varchar2_table(8) := '003FF800003FF000001FF000001FF000001FF000001FF000001FF000001FF000001FF800003FF800003FFC00007FFC00007FFE0000FFFF0001FFFFC007FFFFF01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF280000001000000020000000010004000000';
+wwv_flow_api.g_varchar2_table(9) := '0000C0000000000000000000000000000000000000000000000000008000008000000080800080000000800080008080000080808000C0C0C0000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF000000000000000000000000000000';
+wwv_flow_api.g_varchar2_table(10) := '0000000000999900000000009999999900000009999999999000000999999999900000999999999999000099FFFFFFFF99000099FFFFFFFF9900009999999999990000099999999990000009999999999000000099999999000000000099990000000000';
+wwv_flow_api.g_varchar2_table(11) := '0000000000000000000000000000FFFF0000FFFF0000FC3F0000F00F0000E0070000E0070000C0030000C0030000C0030000C0030000E0070000E0070000F00F0000FC3F0000FFFF0000FFFF0000';
+wwv_flow_api.create_app_static_file(
+ p_id=>wwv_flow_api.id(15302737870581993)
+,p_file_name=>'Misc23.ico'
+,p_mime_type=>'image/x-icon'
+,p_file_charset=>'utf-8'
+,p_file_content => wwv_flow_api.varchar2_to_blob(wwv_flow_api.g_varchar2_table)
+);
+end;
+/
+prompt --application/shared_components/files/ordered_ico
+begin
+wwv_flow_api.g_varchar2_table := wwv_flow_api.empty_varchar2_table;
+wwv_flow_api.g_varchar2_table(1) := '000001000100101010000000000028010000160000002800000010000000200000000100040000000000C00000000000000000000000000000000000000000000000000080000080000000808000800000008000800080800000C0C0C000808080000000';
+wwv_flow_api.g_varchar2_table(2) := 'FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0000000000000000000000000000000000000008888800000000008EEEEE8000000008EEEEEEE80000008EEEEEEEEE800008EEEEEEEEEEE80008EEEEEEEEEEE80008EEEEEEEEEEE80008EE';
+wwv_flow_api.g_varchar2_table(3) := 'EEEEEEEEE80008EEEEEEEEEEE800008EEEEEEEEE80000008EEEEEEE8000000008EEEEE80000000000888880000000000000000000000FFFF0000FFFF0000F83F0000F01F0000E00F0000C00700008003000080030000800300008003000080030000C007';
+wwv_flow_api.g_varchar2_table(4) := '0000E00F0000F01F0000F83F0000FFFF0000';
+wwv_flow_api.create_app_static_file(
+ p_id=>wwv_flow_api.id(15303021544582784)
+,p_file_name=>'ORDERED.ICO'
+,p_mime_type=>'image/x-icon'
+,p_file_charset=>'utf-8'
+,p_file_content => wwv_flow_api.varchar2_to_blob(wwv_flow_api.g_varchar2_table)
+);
+end;
+/
+prompt --application/shared_components/files/pathver_ico
+begin
+wwv_flow_api.g_varchar2_table := wwv_flow_api.empty_varchar2_table;
+wwv_flow_api.g_varchar2_table(1) := '000001000100101010000000000028010000160000002800000010000000200000000100040000000000C00000000000000000000000000000000000000000000000000080000080000000808000800000008000800080800000C0C0C000808080000000';
+wwv_flow_api.g_varchar2_table(2) := 'FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0000000000000000000000000000000000000008888800000000008BBBBB8000000008BBBBBBB80000008BBBBBBBBB800008BBBBBBBBBBB80008BBBBB99BBBB80008BBBB999BBBB80008BB';
+wwv_flow_api.g_varchar2_table(3) := 'B99B99BBB80008BB99BB99BBB800008BBBBBB99B80000008BBBBB998000000008BBBBB99000000000888880990000000000000000900FFFF0000FFFF0000F83F0000F01F0000E00F0000C00700008003000080030000800300008003000080030000C007';
+wwv_flow_api.g_varchar2_table(4) := '0000E00F0000F00F0000F8270000FFFB0000';
+wwv_flow_api.create_app_static_file(
+ p_id=>wwv_flow_api.id(15303320819583207)
+,p_file_name=>'PATHVER.ICO'
+,p_mime_type=>'image/x-icon'
+,p_file_charset=>'utf-8'
+,p_file_content => wwv_flow_api.varchar2_to_blob(wwv_flow_api.g_varchar2_table)
+);
+end;
+/
+prompt --application/shared_components/files/resulted_ico
+begin
+wwv_flow_api.g_varchar2_table := wwv_flow_api.empty_varchar2_table;
+wwv_flow_api.g_varchar2_table(1) := '000001000100101010000000000028010000160000002800000010000000200000000100040000000000C00000000000000000000000000000000000000000000000000080000080000000808000800000008000800080800000C0C0C000808080000000';
+wwv_flow_api.g_varchar2_table(2) := 'FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0000000000000000000000000000000000000008888800000000008AAAAA8000000008AAAAAAA80000008AAAAAAAAA800008AAAAAAAAAAA80008AAAAAAAAAAA80008AAAAAAAAAAA80008AA';
+wwv_flow_api.g_varchar2_table(3) := 'AAAAAAAAA80008AAAAAAAAAAA800008AAAAAAAAA80000008AAAAAAA8000000008AAAAA80000000000888880000000000000000000000FFFF0000FFFF0000F83F0000F01F0000E00F0000C00700008003000080030000800300008003000080030000C007';
+wwv_flow_api.g_varchar2_table(4) := '0000E00F0000F01F0000F83F0000FFFF0000';
+wwv_flow_api.create_app_static_file(
+ p_id=>wwv_flow_api.id(15303649916583709)
+,p_file_name=>'RESULTED.ICO'
+,p_mime_type=>'image/x-icon'
+,p_file_charset=>'utf-8'
+,p_file_content => wwv_flow_api.varchar2_to_blob(wwv_flow_api.g_varchar2_table)
+);
+end;
+/
+prompt --application/shared_components/files/sciver_ico
+begin
+wwv_flow_api.g_varchar2_table := wwv_flow_api.empty_varchar2_table;
+wwv_flow_api.g_varchar2_table(1) := '000001000100101010000000000028010000160000002800000010000000200000000100040000000000C00000000000000000000000000000000000000000000000000080000080000000808000800000008000800080800000C0C0C000808080000000';
+wwv_flow_api.g_varchar2_table(2) := 'FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0000000000000000000000000000000000000008888800000000008AAAAA8000000008AAAAAAA80000008AAAAAAAAA800008AAAAAAAAAAA80008AAAAACCAAAA80008AAAACCCAAAA80008AA';
+wwv_flow_api.g_varchar2_table(3) := 'ACCACCAAA80008AACCAACCAAA800008AAAAAACCA80000008AAAAACC8000000008AAAAACC000000000888880CC0000000000000000C00FFFF0000FFFF0000F83F0000F01F0000E00F0000C00700008003000080030000800300008003000080030000C007';
+wwv_flow_api.g_varchar2_table(4) := '0000E00F0000F00F0000F8270000FFFB0000';
+wwv_flow_api.create_app_static_file(
+ p_id=>wwv_flow_api.id(15303944718584353)
+,p_file_name=>'SCIVER.ICO'
+,p_mime_type=>'image/x-icon'
+,p_file_charset=>'utf-8'
+,p_file_content => wwv_flow_api.varchar2_to_blob(wwv_flow_api.g_varchar2_table)
+);
 end;
 /
 prompt --application/shared_components/files/app_icon_svg
@@ -19080,7 +19222,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20200930074220'
+,p_last_upd_yyyymmddhh24miss=>'20201007193807'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(6879659107826001)
@@ -21596,6 +21738,11 @@ wwv_flow_api.create_page(
 '/* Hide IR report setting area*/',
 '#results_rn_control_panel{',
 '     display:none;',
+'}',
+'',
+'/* Tree region*/',
+'img.fancytree-icon {',
+'    margin-top:4px !important;',
 '}'))
 ,p_page_template_options=>'#DEFAULT#'
 ,p_page_comment=>wwv_flow_string.join(wwv_flow_t_varchar2(
@@ -21636,9 +21783,9 @@ wwv_flow_api.create_page(
 '    line-height:4rem;',
 '}',
 '',
-''))
+'$("img.fancytree-icon").before(''<img src="cims/r/files/static/v18/Laboratory.bmp" class="fancytree-icon" alt="">'')'))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201007191336'
+,p_last_upd_yyyymmddhh24miss=>'20201008150846'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214826760077506)
@@ -21786,9 +21933,10 @@ wwv_flow_api.create_page_plug(
 '                                                   AND   rqt.RQT_IS_DELETED = ''F''',
 '                                                   AND   (rqt.RQT_IS_DORMANT = ''F'' OR (rqt.RQT_DESC IS NOT NULL AND TD.TD_TEST_TYPE NOT IN (''E'',''S'')))',
 '                                                   )  THEN ''fa fa-folder-ban''           ',
-'         */                                                   ',
+'         */',
 '         WHEN ITEM_TYPE = ''PARENT'' THEN ''fa fa-folder-o''',
-'         ELSE ''fa fa-flask''',
+'         ELSE ''#APP_IMAGES#Resulted.ico'' -- ',
+'         --ELSE ''#WORKSPACE_IMAGES#Laboratory.bmp''',
 '     END AS ICON,',
 '    /* Optional - set which nodes should be selcted on load (0 or null - not selected; 1 - selected)*/',
 '     CASE',
@@ -22018,15 +22166,15 @@ wwv_flow_api.create_page_plug(
 'hierarchical_rqt AS (',
 '    SELECT  /*+ materialize */ rt.* , ',
 '            (case ',
-'                 when parent_rqt_key IS NULL then rqt_key',
-'                 when parent_rqt_key IS NOT NULL THEN TO_NUMBER(parent_rqt_key||''.''||rqt_key)',
+'                 when parent_rqt_key IS NULL then req_key || rqt_key',
+'                 when parent_rqt_key IS NOT NULL THEN req_key || parent_rqt_key||''.''||rqt_key',
 '             END) AS rt_rank',
 '    FROM    request_tests rt',
 '    START WITH parent_rqt_key IS NULL',
 '    CONNECT BY prior req_key = req_key ',
 '           --AND prior rqt_key = rqt_key',
 '           AND prior rqt_key = parent_rqt_key',
-'    order siblings by rqt_key DESC',
+'    order siblings by req_key,rqt_key DESC',
 ')',
 '    ',
 'SELECT',
@@ -22077,8 +22225,7 @@ wwv_flow_api.create_page_plug(
 '        RT_RANK',
 'FROM    hierarchical_rqt hrqt,',
 '        test_detail@apex_link td',
-'WHERE   hrqt.td_key = td.td_key',
-'ORDER BY rt_rank'))
+'WHERE   hrqt.td_key = td.td_key'))
 ,p_plug_source_type=>'NATIVE_IR'
 ,p_ajax_items_to_submit=>'P6_TREE_LINK_KEY,P6_TREE_PAT_KEY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -22118,8 +22265,10 @@ wwv_flow_api.create_worksheet(
 ,p_max_row_count=>'1000000'
 ,p_pagination_type=>'ROWS_X_TO_Y_OF_Z'
 ,p_pagination_display_pos=>'BOTTOM_RIGHT'
-,p_show_search_bar=>'N'
+,p_report_list_mode=>'TABS'
 ,p_show_detail_link=>'N'
+,p_show_notify=>'Y'
+,p_download_formats=>'CSV:HTML:EMAIL:XLS:PDF:RTF'
 ,p_owner=>'FRANK'
 ,p_internal_uid=>6881024618826015
 );
@@ -22400,26 +22549,16 @@ wwv_flow_api.create_worksheet_column(
 ,p_db_column_name=>'REQ_RELEV_DATE_DSP'
 ,p_display_order=>160
 ,p_column_identifier=>'Q'
-,p_column_label=>'Req Relev Date Dsp'
+,p_column_label=>'Req Relev Date'
 ,p_column_type=>'STRING'
-,p_display_text_as=>'HIDDEN'
 );
 wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(7765267748219148)
+ p_id=>wwv_flow_api.id(13100725595878507)
 ,p_db_column_name=>'RT_RANK'
 ,p_display_order=>170
-,p_column_identifier=>'R'
+,p_column_identifier=>'S'
 ,p_column_label=>'Rt Rank'
-,p_allow_filtering=>'N'
-,p_allow_highlighting=>'N'
-,p_allow_ctrl_breaks=>'N'
-,p_allow_aggregations=>'N'
-,p_allow_computations=>'N'
-,p_allow_charting=>'N'
-,p_allow_group_by=>'N'
-,p_allow_pivot=>'N'
-,p_column_type=>'NUMBER'
-,p_column_alignment=>'RIGHT'
+,p_column_type=>'STRING'
 );
 wwv_flow_api.create_worksheet_rpt(
  p_id=>wwv_flow_api.id(7318464744071081)
@@ -22429,10 +22568,10 @@ wwv_flow_api.create_worksheet_rpt(
 ,p_status=>'PUBLIC'
 ,p_is_default=>'Y'
 ,p_display_rows=>100
-,p_report_columns=>'DCP_NAME:DPT_NAME:TD_NAME:ABN:RESULT:RANGE:UNIT:CUMULATIVE:REPORT:'
-,p_sort_column_1=>'RT_RANK'
-,p_sort_direction_1=>'ASC'
-,p_sort_column_2=>'0'
+,p_report_columns=>'DCP_NAME:DPT_NAME:TD_NAME:ABN:RESULT:RANGE:UNIT:CUMULATIVE:REPORT:REQ_RELEV_DATE_DSP:'
+,p_sort_column_1=>'REQ_RELEV_DATE_DSP'
+,p_sort_direction_1=>'DESC'
+,p_sort_column_2=>'RT_RANK'
 ,p_sort_direction_2=>'ASC'
 ,p_sort_column_3=>'0'
 ,p_sort_direction_3=>'ASC'
@@ -22442,11 +22581,11 @@ wwv_flow_api.create_worksheet_rpt(
 ,p_sort_direction_5=>'ASC'
 ,p_sort_column_6=>'0'
 ,p_sort_direction_6=>'ASC'
-,p_break_on=>'DCP_NAME:DPT_NAME:0:0:0:0'
-,p_break_enabled_on=>'DCP_NAME:DPT_NAME:0:0:0:0'
+,p_break_on=>'DCP_NAME:DPT_NAME:REQ_RELEV_DATE_DSP:0:0:0'
+,p_break_enabled_on=>'DCP_NAME:DPT_NAME:REQ_RELEV_DATE_DSP:0:0:0'
 );
 wwv_flow_api.create_worksheet_condition(
- p_id=>wwv_flow_api.id(9500628720037862)
+ p_id=>wwv_flow_api.id(15312198036866650)
 ,p_report_id=>wwv_flow_api.id(7318464744071081)
 ,p_name=>'Abnormality'
 ,p_condition_type=>'HIGHLIGHT'
