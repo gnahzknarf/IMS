@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   15:10 Thursday October 8, 2020
+--   Date and Time:   15:52 Thursday October 8, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -117,7 +117,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201008150846'
+,p_last_upd_yyyymmddhh24miss=>'20201008155152'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>44
 ,p_ui_type_name => null
@@ -21785,7 +21785,7 @@ wwv_flow_api.create_page(
 '',
 '$("img.fancytree-icon").before(''<img src="cims/r/files/static/v18/Laboratory.bmp" class="fancytree-icon" alt="">'')'))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201008150846'
+,p_last_upd_yyyymmddhh24miss=>'20201008155152'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(8214826760077506)
@@ -21918,23 +21918,13 @@ wwv_flow_api.create_page_plug(
 '     TITLE AS TOOLTIP,',
 '    /* Optional - set custom icon for item */',
 '     CASE',
-'         /*',
-'         WHEN ITEM_TYPE = ''PARENT'' AND NOT EXISTS (SELECT 1 ',
-'                                                   FROM ilms5.request@apex_link req, ',
-'                                                        ilms5.request_test@apex_link rqt,',
-'                                                        ilms5.test_detail@apex_link td',
-'                                                   WHERE req.req_key = rqt.req_key',
-'                                                   AND   rqt.td_key = td.td_key',
-'                                                   AND   req.pat_key = :P6_PAT_KEY',
-'                                                   AND   to_char(req.req_RELEV_date,''YYYYMMDD'')  = ID',
-'                                                   AND   rqt.res_key in (5, 6, 29, 30)',
-'                                                   AND   TRIM(rqt.rqt_desc) IS NOT NULL',
-'                                                   AND   rqt.parent_rqt_key IS NULL',
-'                                                   AND   rqt.RQT_IS_DELETED = ''F''',
-'                                                   AND   (rqt.RQT_IS_DORMANT = ''F'' OR (rqt.RQT_DESC IS NOT NULL AND TD.TD_TEST_TYPE NOT IN (''E'',''S'')))',
-'                                                   )  THEN ''fa fa-folder-ban''           ',
-'         */',
 '         WHEN ITEM_TYPE = ''PARENT'' THEN ''fa fa-folder-o''',
+'         WHEN ITEM_TYPE = ''CHILD'' ',
+'         THEN ''#APP_IMAGES#'' || (SELECT res_icon ',
+'                                 from RESULT_STATUS@apex_link icon, request@apex_link req ',
+'                                 where icon.res_key = req.res_key ',
+'                                 AND req.req_key = SUBSTR(ID,INSTR(ID,''-'')+1)',
+'                                )',
 '         ELSE ''#APP_IMAGES#Resulted.ico'' -- ',
 '         --ELSE ''#WORKSPACE_IMAGES#Laboratory.bmp''',
 '     END AS ICON,',
@@ -22647,9 +22637,6 @@ wwv_flow_api.create_page_item(
 ,p_attribute_01=>'Y'
 ,p_item_comment=>'set in plug-in attribute. not used at the moment'
 );
-end;
-/
-begin
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6860670171823906)
 ,p_name=>'P6_TREE_LINK_KEY'
@@ -22676,6 +22663,9 @@ wwv_flow_api.create_page_item(
 ,p_warn_on_unsaved_changes=>'I'
 ,p_attribute_01=>'Y'
 );
+end;
+/
+begin
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6861007520823906)
 ,p_name=>'P6_TREE_PAT_KEY'
