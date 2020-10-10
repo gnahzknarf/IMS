@@ -76,10 +76,20 @@ cims_apex.cims = (function process(cimsUtil,$){
                         log("searchPromise Promise resolved. error: ", data.message);
                         showError(data.message);
                     }else{
-                        
-                        //Set column headers. 
+                        var colName;
+                        //Reset existing header label items
+                        for(idx = 4; idx<=49; idx++){
+                            var s = "000" + idx;
+                            var seq = s.substr(s.length-3);                            
+                            colName= "P2_LABEL_C" + seq;                            
+                            apex.item(colName).setValue("");
+                        }
+  
+
+
+                        //Set column header label items
                         var colHdrArray = data.column_headers;
-                        var colHdr, colName;
+                        var colHdr;
                         
                         if (colHdrArray.length > 0 ){
                             for (idx = 0; idx < colHdrArray.length; idx ++){
@@ -104,13 +114,14 @@ cims_apex.cims = (function process(cimsUtil,$){
                         
                     }                      
                 })
-                //.then(function(){})
-                .catch(showAjaxError)
-                .then(function(){//cleanup    
-                    loadingIndicator.remove();
+                .then(function(){
                     // refresh region
                     $("#cumulative_dsp_rn").show();
                     apex.region("cumulative_dsp_rn").refresh();
+                })
+                .catch(showAjaxError)
+                .then(function(){//cleanup    
+                    loadingIndicator.remove();                    
                 });            
         }   
         log(functionName, "End");
@@ -128,6 +139,14 @@ cims_apex.cims = (function process(cimsUtil,$){
             $("td:contains('+')").css('color','red');
             $("td:contains('-')").css('color','red');
             $("td[headers='RANGE']").css('color','');
+            
+            // Remember the row users clicked before changing date range, trigger click event after IR refresh. 
+            // P2_LINE_TD_NAME is populated when user manually click an IR row
+            var selectedTd = apex.item("P2_LINE_TD_NAME").getValue();
+            if (selectedTd != ""){                        
+                var tdSelector = "#cumulative_dsp_rn td:nth-child(1):contains("+ selectedTd +")";
+                $(tdSelector).click();
+            }
         }        
 
         log(functionName, "End");
@@ -143,7 +162,7 @@ cims_apex.cims = (function process(cimsUtil,$){
         var te = arguments[0].triggeringElement;
         if (currentPageId == 2){
             //set color, function defined on page propery
-            irRowhighLight(te);
+            irRowhighLight( te );
 
             var id = $(te).closest('tr').find('td[headers="TD_NAME"]').text(); 
             var range =  $(te).closest('tr').find('td[headers="RANGE"]').text(); 
@@ -158,10 +177,76 @@ cims_apex.cims = (function process(cimsUtil,$){
             $("#cumulative_chart_rn_heading").text(title);
 
             //This is a dummy process that saves client value to session state so they can be used by y axis
-            //apex.server.process('DUMMY',{pageItems: '#P2_LINE_UNIT,#P2_LINE_TD_NAME'},{dataType: "text"});
+            apex.server.process('DUMMY',{pageItems: '#P2_LINE_UNIT,#P2_LINE_TD_NAME'},{dataType: "text"});
 
             apex.region("cumulative_chart_rn").refresh();
+        }if (currentPageId == 6){
+            var reqKey =te.getAttribute('data-req-key');
+            var rqtKey =te.getAttribute('data-rqt-key');
+            log("reqKey: ",reqKey);
+            log("rqtKey: ",rqtKey);
+
+            var targetPage;
+            if ($(te).hasClass('view_cumulative')){
+                targetPage = 2;
+            }else if ($(te).hasClass('view_comments')){
+                targetPage = 7;
+            }else if ($(te).hasClass('view_report')){
+                targetPage = 5;
+            }                
+            log("targetPage: ",targetPage);
+
+
+            Promise = function(){
+                return apex.server.process(
+                            "CB_GET_TARGET_URL",
+                            {   x01: targetPage,
+                                x02: reqKey,
+                                x03: rqtKey
+                            }
+                        );
+                };       
+
+            Promise()
+                .then(function(data){
+                        console.log("promise resolved", data);
+                        if (!data.success){
+                            log("Promise resolved. error: ", data.message);
+                        }else{
+                            if (targetPage == 5){
+                                javascript:window.open(data.url, '_blank');    
+                            }else{
+                                apex.navigation.redirect(data.url);           
+                            }
+                        }
+                    })
+                .catch(showAjaxError);
+
         }        
+
+        log(functionName, "End");
+    },
+
+    /**********************************************************************************************************************************
+     * @function whenItemChange
+     * @example cims_apex.cims.whenItemChange(this);
+     * @desc   this function is called when  page load
+     **********************************************************************************************************************************/                         
+    module.whenItemChange = function(){
+        functionName = 'cims_apex.cims.whenItemChange';        
+        log(functionName,"Begin. pageNo: " + currentPageId, arguments);        
+        var te = arguments[0].triggeringElement.id;           
+        var teValue = apex.item(te).getValue();
+        log('triggeringElement.id', te,teValue);
+        if (te == "P6_TREE_LINK_KEY"){
+            var pat_key = apex.item("P6_PAT_KEY").getValue();
+            log("pat_key",pat_key);
+            
+            apex.item("P6_TREE_PAT_KEY").setValue(pat_key);            
+            apex.region("clinical_notes_rn").refresh();
+            apex.region("results_rn").refresh();
+            
+        }
 
         log(functionName, "End");
     },
