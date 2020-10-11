@@ -113,28 +113,28 @@ cims_apex.cims = (function process(cimsUtil,$){
                         );
                         
                     }                      
-                })
-                .then(function(){
-                    // refresh region
-                    $("#cumulative_dsp_rn").show();
-                    apex.region("cumulative_dsp_rn").refresh();
-                })
+                })                
                 .catch(showAjaxError)
                 .then(function(){//cleanup    
                     loadingIndicator.remove();                    
+                    // refresh region
+                    $("#cumulative_dsp_rn").show();
+                    apex.region("cumulative_dsp_rn").refresh();
                 });            
         }   
         log(functionName, "End");
     },
     /**********************************************************************************************************************************
      * @function afterRefresh
-     * @example cims_apex.cims.afterRefresh();
+     * @example cims_apex.cims.afterRefresh(this);
      * @desc   this function is called after Interactive Report refreshes
      **********************************************************************************************************************************/                         
     module.afterRefresh = function(){
         functionName = 'cims_apex.cims.afterRefresh';        
-        log(functionName,"Begin. pageNo: " + currentPageId, arguments);        
-        if (currentPageId == 2){
+        log(functionName,"Begin. pageNo: " + currentPageId, arguments);      
+        var id = arguments[0].triggeringElement.id;
+        log("triggeringElement.id",id)
+        if (currentPageId == 2 && id == "cumulative_dsp_rn"){
             //highlight cells
             $("td:contains('+')").css('color','red');
             $("td:contains('-')").css('color','red');
@@ -146,6 +146,8 @@ cims_apex.cims = (function process(cimsUtil,$){
             if (selectedTd != ""){                        
                 var tdSelector = "#cumulative_dsp_rn td:nth-child(1):contains("+ selectedTd +")";
                 $(tdSelector).click();
+            }else{
+                apex.region("cumulative_chart_rn").refresh();
             }
         }        
 
