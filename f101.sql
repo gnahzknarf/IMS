@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   19:47 Sunday October 11, 2020
+--   Date and Time:   20:49 Sunday October 11, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -37,7 +37,7 @@ prompt APPLICATION 101 - DEMO
 --       Processes:                9
 --       Regions:                 17
 --       Buttons:                  3
---       Dynamic Actions:         17
+--       Dynamic Actions:         11
 --     Shared Components:
 --       Logic:
 --         Processes:              2
@@ -117,7 +117,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201011193336'
+,p_last_upd_yyyymmddhh24miss=>'20201011204844'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>170
 ,p_ui_type_name => null
@@ -19367,7 +19367,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201007193807'
+,p_last_upd_yyyymmddhh24miss=>'20201011204844'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(6879659107826001)
@@ -19561,148 +19561,6 @@ wwv_flow_api.create_page_item(
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs'
 ,p_inline_help_text=>'Vitals'
 ,p_attribute_01=>'URL'
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(38675959306265193550)
-,p_name=>'When Page Load'
-,p_event_sequence=>10
-,p_bind_type=>'bind'
-,p_bind_event_type=>'ready'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(6205176062554401)
-,p_event_id=>wwv_flow_api.id(38675959306265193550)
-,p_event_result=>'TRUE'
-,p_action_sequence=>30
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_JAVASCRIPT_CODE'
-,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'// set title  chemical_pathology_rn_heading',
-'$("#chemical_pathology_rn_heading").text("Chemical Pathology");'))
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(1374138824253630)
-,p_name=>'When Click View Comments'
-,p_event_sequence=>20
-,p_triggering_element_type=>'JQUERY_SELECTOR'
-,p_triggering_element=>'.view_comments'
-,p_bind_type=>'live'
-,p_bind_delegate_to_selector=>'#clinical_notes_rn,#chemical_pathology_rn,#haematology_rn,#cytology_rn,#virology_rn,#microbiology_rn'
-,p_bind_event_type=>'click'
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(2143742599194412)
-,p_name=>'When Click View Cumulative'
-,p_event_sequence=>30
-,p_triggering_element_type=>'JQUERY_SELECTOR'
-,p_triggering_element=>'.view_cumulative'
-,p_bind_type=>'live'
-,p_bind_delegate_to_selector=>'#clinical_notes_rn,#chemical_pathology_rn,#haematology_rn,#cytology_rn,#virology_rn,#microbiology_rn'
-,p_bind_event_type=>'click'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(2143850654194413)
-,p_event_id=>wwv_flow_api.id(2143742599194412)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_JAVASCRIPT_CODE'
-,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'var reqKey =this.triggeringElement.getAttribute(''data-link-key'');',
-'console.log("reqKey: ",reqKey);',
-'$s("P2_REQ_KEY",reqKey);',
-'var url = "f?p=&APP_ID.:2:&SESSION.::NO:2:::NO";',
-'',
-'',
-'console.log(''url'',url);',
-'apex.navigation.redirect(url);'))
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(2143532436194410)
-,p_name=>'When Click View Report'
-,p_event_sequence=>40
-,p_triggering_element_type=>'JQUERY_SELECTOR'
-,p_triggering_element=>'.view_report'
-,p_bind_type=>'live'
-,p_bind_delegate_to_selector=>'#clinical_notes_rn,#chemical_pathology_rn,#haematology_rn,#cytology_rn,#virology_rn,#microbiology_rn'
-,p_bind_event_type=>'click'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(2143625853194411)
-,p_event_id=>wwv_flow_api.id(2143532436194410)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_JAVASCRIPT_CODE'
-,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'var reqKey =this.triggeringElement.getAttribute(''data-link-key'');',
-'console.log("reqKey: ",reqKey);',
-'',
-'var url = "f?p=&APP_ID.:5:&SESSION.::NO:5:P5_REQ_KEY:" + reqKey + ":NO";',
-'',
-'console.log(''url'',url);',
-'javascript:window.open(url, ''_blank'');'))
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(2145050095194425)
-,p_name=>'Refresh Region When Tree Clicked'
-,p_event_sequence=>60
-,p_triggering_element_type=>'ITEM'
-,p_triggering_element=>'P1_TREE_LINK_KEY'
-,p_bind_type=>'bind'
-,p_bind_event_type=>'change'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(2145110994194426)
-,p_event_id=>wwv_flow_api.id(2145050095194425)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_JAVASCRIPT_CODE'
-,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'var pat_key = apex.item("P1_PAT_KEY").getValue();',
-'console.log("pat_key",pat_key);',
-'',
-'apex.item("P1_TREE_PAT_KEY").setValue(pat_key);',
-'',
-'apex.region("clinical_notes_rn").refresh();',
-'apex.region("chemical_pathology_rn").refresh();',
-'apex.region("haematology_rn").refresh();',
-'apex.region("cytology_rn").refresh();',
-'apex.region("virology_rn").refresh();',
-'apex.region("microbiology_rn").refresh();',
-'',
-'/* Everytime region type is changed, the class is blown away.  have to re-do it',
-'var rds_tabs = $(".rds_tab"); // tab regions have custom class rds_tab',
-'if (rds_tabs != undefined){',
-'    console.log("rds defined", rds_tabs.length);',
-'    for (idx=0; idx < rds_tabs.length; idx ++ ){        ',
-'        var tab_id = rds_tabs[idx].id;',
-'        console.log("tab_id",tab_id);',
-'        apex.region(tab_id).refresh();',
-'    }',
-'}else{',
-'    console.log("rds undefined");',
-'}',
-'*/'))
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(8736865886220918)
-,p_name=>'When Click Nav Summary Img'
-,p_event_sequence=>70
-,p_triggering_element_type=>'ITEM'
-,p_triggering_element=>'P1_NAV_SUMMARY'
-,p_bind_type=>'bind'
-,p_bind_event_type=>'click'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(8736906297220919)
-,p_event_id=>wwv_flow_api.id(8736865886220918)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_SUBMIT_PAGE'
-,p_attribute_02=>'Y'
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(8737848506220928)
