@@ -1,0 +1,15 @@
+/* Hide footer-top button */
+.t-Footer-top { 
+    display: none !important;
+}
+
+/* Remove footer right padding*/
+.t-Footer{
+	padding-right:0px !important;
+	padding-bottom: 0px !important;
+}
+
+/* Align company website to end in footer*/
+#company-website{
+	text-align:end;
+}
