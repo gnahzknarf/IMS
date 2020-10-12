@@ -149,6 +149,24 @@ cims_apex.cims = (function process(cimsUtil,$){
             }else{
                 apex.region("cumulative_chart_rn").refresh();
             }
+        }else if(currentPageId == 6 && id == "results_rn"){
+            // rebuid IR control break description
+            $("th.a-IRR-header.a-IRR-header--group").each( function(i,val){
+                var cb= $(val).text();
+                log("Existing control break desc",cb);
+                var cbArray= cb.split(",");
+                var obj = {};
+                for (var i=0; i<cbArray.length; i++){
+                    var nvp = cbArray[i].split(":");
+                    if (nvp[0].trim() =="Date"){
+                        obj[nvp[0].trim()] = nvp[1].trim() + ":" +nvp[2].trim();
+                    }else{
+                        obj[nvp[0].trim()] = nvp[1].trim();	
+                    }
+                }
+                var newDesc = obj.Discipline + " (" + obj.Department + ") " + obj.Date;
+                $(val).html(newDesc);
+            });
         }        
 
         log(functionName, "End");
