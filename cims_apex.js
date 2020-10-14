@@ -189,17 +189,23 @@ cims_apex.cims = (function process(cimsUtil,$){
             var units =  $(te).closest('tr').find('td[headers="UNITS"]').text(); 
             log("TD_NAME",id);
             log("unit",units);
+            
+            if (units != ""){// only refresh if there is units, others are text results
+                console.log("unit is not null");
+                apex.item("P2_LINE_TD_NAME").setValue(id);
+                apex.item("P2_LINE_UNIT").setValue(units);
+                
+                $("#cumulative_chart_rn").show();
+                var title = "Cumulative Results Chart : " + id +" " + range + " " + units ; 
+                $("#cumulative_chart_rn_heading").text(title);
 
-            apex.item("P2_LINE_TD_NAME").setValue(id);
-            apex.item("P2_LINE_UNIT").setValue(units);
+                //This is a dummy process that saves client value to session state so they can be used by y axis
+                apex.server.process('DUMMY',{pageItems: '#P2_LINE_UNIT,#P2_LINE_TD_NAME'},{dataType: "text"});
 
-            var title = "Cumulative Results Chart : " + id +" " + range + " " + units ; 
-            $("#cumulative_chart_rn_heading").text(title);
-
-            //This is a dummy process that saves client value to session state so they can be used by y axis
-            apex.server.process('DUMMY',{pageItems: '#P2_LINE_UNIT,#P2_LINE_TD_NAME'},{dataType: "text"});
-
-            apex.region("cumulative_chart_rn").refresh();
+                apex.region("cumulative_chart_rn").refresh();
+            }else{
+                $("#cumulative_chart_rn").hide();
+            }
         }if (currentPageId == 6){
             var reqKey =te.getAttribute('data-req-key');
             var rqtKey =te.getAttribute('data-rqt-key');
