@@ -1,3 +1,8 @@
+/* Remove Header */
+#t_Header{
+	display: none !important;
+}
+
 /* Remove the line below company logo*/
 .t-Body-title{
     border-bottom:none !important
