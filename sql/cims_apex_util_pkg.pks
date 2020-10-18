@@ -7,7 +7,7 @@ REM -------   -----------  ---------------  ------------------------------------
 REM 1.0       18-OCT-2020  Frank Zhang      Initial Creation
 REM ***************************************************************************/
 
-FUNCTION  log_error (p_error in apex_error.t_error )
-return number
+FUNCTION log_error(p_error in apex_error.t_error)
+RETURN NUMBER;
 
 END cims_apex_util_pkg;

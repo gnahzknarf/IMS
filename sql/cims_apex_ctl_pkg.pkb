@@ -12,11 +12,15 @@ REM ***************************************************************************/
     ** This FUNCTION is used to populate custom table CIMS_APEX_ERROR_LOGS, it is called in cims_apex_ctl_pkg for error logging 
     ***************************************************************************************************************************/
     FUNCTION  log_error (p_error in apex_error.t_error )
-    return number IS        
+    RETURN NUMBER IS        
         PRAGMA AUTONOMOUS_TRANSACTION;
-        l_log_id    number;        
-    BEGIN
-        l_reference_id := CIMS_APEX_ERROR_LOG_ID.nextval
+        l_log_id                    NUMBER;        
+        l_is_internal_error         VARCHAR2(1);
+        l_is_common_runtime_error   VARCHAR2(1);
+    BEGIN        
+        l_is_internal_error := case p_error.is_internal_error when TRUE then 'Y' when FALSE then 'N' else NULL end;
+        l_is_common_runtime_error := case p_error.is_common_runtime_error when TRUE then 'Y' when FALSE then 'N' else NULL end;
+
         INSERT INTO CIMS_APEX_ERROR_LOGS(
             --log_id                 ,
             message                  ,
@@ -41,27 +45,27 @@ REM ***************************************************************************/
             p_error.message,
             p_error.additional_info,
             p_error.display_location,
-            p_error.asociation_type,
+            p_error.association_type,
             p_error.page_item_name,
             p_error.region_id,
             p_error.column_alias,
             p_error.row_num,
             p_error.apex_error_code,
-            (case when p_error.is_internal_error then 'Y' else 'N' end),
-            (case when p_error.is_common_runtime_error then 'Y' else 'N' end),
+            l_is_internal_error,
+            l_is_common_runtime_error,
             p_error.ora_sqlcode,
             p_error.ora_sqlerrm,
             p_error.error_backtrace,
             p_error.error_statement,
-            p_error.component_name
-            p_error.component_type
+            p_error.component.name,
+            p_error.component.type
         ) returning log_id into l_log_id;
 
         COMMIT;
 
         return l_log_id;
-    exception
+    EXCEPTION
         when others then
             return null;        
-    END apex_error_handler;
-END cims_apex_ctl_pkg;
+    END log_error;
+END cims_apex_util_pkg;
