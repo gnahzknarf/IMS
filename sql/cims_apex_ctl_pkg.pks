@@ -12,5 +12,8 @@ REM ***************************************************************************/
         p_date_from  IN  VARCHAR2,
         p_date_to    IN  VARCHAR2
     );
+	
+	FUNCTION  apex_error_handler (p_error in apex_error.t_error )
+    return apex_error.t_error_result;
     
 END cims_apex_ctl_pkg;
