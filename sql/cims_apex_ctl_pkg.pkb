@@ -31,7 +31,7 @@ REM ***************************************************************************/
     )
     IS
         v_seq               NUMBER DEFAULT 0;
-        v_sql_stmt1         VARCHAR2(3000);    
+        v_sql_stmt1         VARCHAR2(3200);    
         v_sql_stmt2         VARCHAR2(2000);    
         v_sql               VARCHAR2(4000);   
         cur_sql_col_hdr     SYS_REFCURSOR;
@@ -156,6 +156,7 @@ REM ***************************************************************************/
                     AND   tl.pat_key = req.pat_key
                     AND   req.req_key = rqt.req_key
                     AND   rqt.td_key = td.td_key
+                    AND   (SELECT COUNT(*) FROM request_test@apex_link rqt1 WHERE rqt1.req_key = req.req_key AND rqt1.parent_rqt_key = rqt.rqt_key) = 0
                     AND   TRUNC(req.req_relev_date) BETWEEN params.DATE_FROM AND params.DATE_TO
                     )
                     ]';

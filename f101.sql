@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   18:17 Sunday October 18, 2020
+--   Date and Time:   13:54 Monday October 19, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -118,7 +118,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201018152208'
+,p_last_upd_yyyymmddhh24miss=>'20201019135417'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>228
 ,p_ui_type_name => null
@@ -15736,8 +15736,8 @@ wwv_flow_api.create_page(
 ,p_dialog_height=>'1000'
 ,p_dialog_width=>'1200'
 ,p_page_is_public_y_n=>'Y'
-,p_last_updated_by=>'KANES'
-,p_last_upd_yyyymmddhh24miss=>'20201016090404'
+,p_last_updated_by=>'FRANK'
+,p_last_upd_yyyymmddhh24miss=>'20201019135417'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2144239822194417)
@@ -15805,7 +15805,7 @@ wwv_flow_api.create_page_plug(
 '       MD5_ORIGINAL',
 '  from APEX_COLLECTIONS',
 '  WHERE collection_name = ''CUMULATIVE_VIEW''',
-'--  AND c002 IS NOT NULL'))
+'  --AND c002 IS NOT NULL'))
 ,p_plug_source_type=>'NATIVE_IR'
 ,p_ajax_items_to_submit=>'P2_REQ_KEY,P2_RQT_KEY,P2_DATE_FROM,P2_DATE_TO'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
