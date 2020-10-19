@@ -75,6 +75,7 @@ REM ***************************************************************************/
             AND   req.req_key = rqt.req_key
             AND   rqt.td_key = td.td_key
             AND   TRUNC(req.req_relev_date) BETWEEN params.DATE_FROM AND params.DATE_TO
+            AND   EXISTS(SELECT 1 FROM request_test@apex_link rqt1 WHERE rqt1.req_key = req.req_key AND TRIM(rqt1.rqt_desc) IS NOT NULL )
             ORDER BY req.req_relev_date ASC
                 ;            
     BEGIN
@@ -158,6 +159,7 @@ REM ***************************************************************************/
                     AND   rqt.td_key = td.td_key
                     AND   (SELECT COUNT(*) FROM request_test@apex_link rqt1 WHERE rqt1.req_key = req.req_key AND rqt1.parent_rqt_key = rqt.rqt_key) = 0
                     AND   TRUNC(req.req_relev_date) BETWEEN params.DATE_FROM AND params.DATE_TO
+                    AND   TRIM(rqt.rqt_desc) IS NOT NULL
                     )
                     ]';
                     
