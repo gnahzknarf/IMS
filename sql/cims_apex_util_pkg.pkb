@@ -77,19 +77,22 @@ REM ***************************************************************************/
         l_jwt      apex_jwt.t_token;
         l_jwt_user varchar2(255);
         l_jwt_elts apex_t_varchar2;
+        
+        l_url      varchar2(4000); 
+
     begin
         --
         -- parse JWT payload in X01
         --
         l_x01 := v('APP_AJAX_X01');
-        apex_debug.trace('X01=%s', l_x01);
+        apex_debug.warn('CIMS X01=%s', l_x01);
         if l_x01 like '%.%.%' then
             begin
                 l_jwt := apex_jwt.decode (
                                             p_value         => l_x01,
-                                            p_signature_key => sys.utl_raw.cast_to_raw('XVTFBXHqwG7QqOihDo5YvPaHu87KZOIr') 
-                                            );                
-                apex_debug.trace('JWT payload=%s', l_jwt.payload);
+                                            p_signature_key => sys.utl_raw.cast_to_raw('kYedRDkPvEOJLFFOn66vjiS-pjeCwk7uNX4QbgrhdrnGVb86saIEhvt3CW__CQAPqrHCLFrYo620lbJUo5MHE2Di8Z53lDd_RRyTdeMVhdulECPCY5_yUH3PKxzvNv23iP6knZmYrO1qARiEASphryaGr28PL6nkTl2Tjce4Sbfnbwi7hWl9Wb-9Xia6ICIyklU8aeoQU1tMxxZyDWj37dbWSld155LzkBGAIwlVBM2CPqIwmC22U3TOPL4w-xtyg18AM-Zl3nnWK8XqF-z5yR7lAOT1_11lDYaIcFO71MMknTZhy9gejxVUVL1jMd1FHP6BW5sLcDLMGBIMw10a7g') 
+                                        );                
+                apex_debug.warn('CIMS JWT payload=%s', l_jwt.payload);
                 --
                 apex_jwt.validate (
                                     p_token => l_jwt,
@@ -97,13 +100,13 @@ REM ***************************************************************************/
                                     p_aud   => 'CIMS',
                                     p_leeway_seconds => 60 );
                 
-                apex_debug.trace('...validated');
+                apex_debug.warn('CIMS ...validated');
                 --
                 apex_json.parse (p_source => l_jwt.payload );
                 l_jwt_user := apex_json.get_varchar2('sub');
             exception 
                 when others then
-                    apex_debug.trace('...error: %s', sqlerrm);
+                    apex_debug.warn('CIMS ...error: %s', sqlerrm);
             end;
         end if;
         --
@@ -118,7 +121,7 @@ REM ***************************************************************************/
                 return false;
             end if;
         elsif apex_application.g_user <> l_jwt_user then
-            apex_debug.trace('...login user %s does not match JWT user %s',
+            apex_debug.warn('CIMS ...login user %s does not match JWT user %s',
                             apex_application.g_user,
                             l_jwt_user );
             return false;
@@ -129,14 +132,16 @@ REM ***************************************************************************/
         if l_jwt_user is not null then
             l_jwt_elts := apex_json.get_members('.');
             for i in 1 .. l_jwt_elts.count loop
-                if l_jwt_elts(i) like 'P%' then
-                    apex_debug.trace('...setting %s', l_jwt_elts(i));
-                    apex_util.set_session_state (
-                        p_name  => l_jwt_elts(i),
-                        p_value => apex_json.get_varchar2(l_jwt_elts(i)) );
+                if l_jwt_elts(i) = 'P6_MRN' then
+                    l_url := APEX_PAGE.GET_URL (
+                                                    p_page   => 6,
+                                                    p_items  => 'P6_MRN',
+                                                    p_values => apex_json.get_varchar2(l_jwt_elts(i)) );
+
                 end if;
             end loop;
+            apex_util.redirect_url(l_url);
         end if;
         return true;      
-    end;
+    end sentry;
 END cims_apex_util_pkg;
