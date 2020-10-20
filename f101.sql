@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   11:52 Tuesday October 20, 2020
+--   Date and Time:   09:48 Wednesday October 21, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -118,7 +118,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201020115101'
+,p_last_upd_yyyymmddhh24miss=>'20201021094705'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>231
 ,p_ui_type_name => null
@@ -15737,7 +15737,7 @@ wwv_flow_api.create_page(
 ,p_dialog_width=>'1200'
 ,p_page_is_public_y_n=>'Y'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201020114947'
+,p_last_upd_yyyymmddhh24miss=>'20201021094705'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2144239822194417)
@@ -17000,9 +17000,7 @@ wwv_flow_api.create_jet_chart(
 ,p_hide_and_show_behavior=>'none'
 ,p_hover_behavior=>'dim'
 ,p_stack=>'off'
-,p_connect_nulls=>'Y'
-,p_sorting=>'label-asc'
-,p_fill_multi_series_gaps=>true
+,p_fill_multi_series_gaps=>false
 ,p_zoom_and_scroll=>'off'
 ,p_tooltip_rendered=>'Y'
 ,p_show_series_name=>true
@@ -17044,15 +17042,15 @@ wwv_flow_api.create_jet_chart_series(
 'AND     TRUNC(req.req_relev_date) BETWEEN params.DATE_FROM AND params.DATE_TO',
 'AND     TRIM(rqt.rqt_desc) IS NOT NULL	',
 ') ',
-'SELECT  --TO_CHAR(rt.req_relev_date,''DD/MM/YYYY HH24:MI'') AS LABEL,',
-'        rt.req_relev_date AS LABEL,',
+'SELECT  TO_CHAR(rt.req_relev_date,''DD/MM/YYYY HH24:MI'') AS LABEL,',
+'        --rt.req_relev_date AS LABEL,',
 '        rt.RESULTS,',
 '        to_number(regexp_replace(SUBSTR(rt.RANGE,1,INSTR(rt.RANGE,''-'') -1), ''[^0-9.]'', '''')) AS RANGE_LOW,',
 '        to_number(regexp_replace(SUBSTR(rt.RANGE,INSTR(rt.RANGE,''-'') +1), ''[^0-9.]'', '''')) AS RANGE_HIGH',
 'FROM    request_tests rt',
 'WHERE   :P2_LINE_TD_NAME IS NOT NULL',
 '--AND rqt_desc is not null',
-'--ORDER BY req_relev_date;'))
+'ORDER BY req_relev_date;'))
 ,p_ajax_items_to_submit=>'P2_REQ_KEY,P2_RQT_KEY,P2_LINE_TD_NAME,P2_DATE_FROM,P2_DATE_TO'
 ,p_items_value_column_name=>'RANGE_HIGH'
 ,p_items_label_column_name=>'LABEL'
@@ -17097,15 +17095,15 @@ wwv_flow_api.create_jet_chart_series(
 'AND     TRUNC(req.req_relev_date) BETWEEN params.DATE_FROM AND params.DATE_TO',
 'AND     TRIM(rqt.rqt_desc) IS NOT NULL	',
 ') ',
-'SELECT  --TO_CHAR(rt.req_relev_date,''DD/MM/YYYY HH24:MI'') AS LABEL,',
-'        rt.req_relev_date AS LABEL,',
+'SELECT  TO_CHAR(rt.req_relev_date,''DD/MM/YYYY HH24:MI'') AS LABEL,',
+'        --rt.req_relev_date AS LABEL,',
 '        rt.RESULTS,',
 '        to_number(regexp_replace(SUBSTR(rt.RANGE,1,INSTR(rt.RANGE,''-'') -1), ''[^0-9.]'', '''')) AS RANGE_LOW,',
 '        to_number(regexp_replace(SUBSTR(rt.RANGE,INSTR(rt.RANGE,''-'') +1), ''[^0-9.]'', '''')) AS RANGE_HIGH',
 'FROM    request_tests rt',
 'WHERE   :P2_LINE_TD_NAME IS NOT NULL',
 '--AND rqt_desc is not null',
-'--ORDER BY TO_CHAR(rt.req_relev_date,''YYYYMMDDHH24:MI:SS'') DESC;'))
+'ORDER BY rt.req_relev_date; '))
 ,p_ajax_items_to_submit=>'P2_REQ_KEY,P2_RQT_KEY,P2_LINE_TD_NAME,P2_DATE_FROM,P2_DATE_TO'
 ,p_items_value_column_name=>'RESULTS'
 ,p_items_label_column_name=>'LABEL'
@@ -17151,15 +17149,15 @@ wwv_flow_api.create_jet_chart_series(
 'AND     TRUNC(req.req_relev_date) BETWEEN params.DATE_FROM AND params.DATE_TO',
 'AND     TRIM(rqt.rqt_desc) IS NOT NULL	',
 ') ',
-'SELECT  --TO_CHAR(rt.req_relev_date,''DD/MM/YYYY HH24:MI'') AS LABEL,',
-'        rt.req_relev_date AS LABEL,',
+'SELECT  TO_CHAR(rt.req_relev_date,''DD/MM/YYYY HH24:MI'') AS LABEL,',
+'        --rt.req_relev_date AS LABEL,',
 '        rt.RESULTS,',
 '        to_number(regexp_replace(SUBSTR(rt.RANGE,1,INSTR(rt.RANGE,''-'') -1), ''[^0-9.]'', '''')) AS RANGE_LOW,',
 '        to_number(regexp_replace(SUBSTR(rt.RANGE,INSTR(rt.RANGE,''-'') +1), ''[^0-9.]'', '''')) AS RANGE_HIGH',
 'FROM    request_tests rt',
 'WHERE   :P2_LINE_TD_NAME IS NOT NULL',
 '--AND rqt_desc is not null',
-'--ORDER BY req_relev_date;'))
+'ORDER BY req_relev_date;'))
 ,p_ajax_items_to_submit=>'P2_REQ_KEY,P2_RQT_KEY,P2_LINE_TD_NAME,P2_DATE_FROM,P2_DATE_TO'
 ,p_items_value_column_name=>'RANGE_LOW'
 ,p_items_label_column_name=>'LABEL'
