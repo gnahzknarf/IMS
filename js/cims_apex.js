@@ -71,7 +71,7 @@ cims_apex.cims = (function process(cimsUtil,$){
             loadingIndicator= apex.widget.waitPopup();
             searchPromise()
                 .then(function(data){
-                    console.log("promise resolved", data);
+                    log("promise resolved", data);
                     if (!data.success){
                         log("searchPromise Promise resolved. error: ", data.message);
                         showError(data.message);
@@ -191,7 +191,7 @@ cims_apex.cims = (function process(cimsUtil,$){
             log("unit",units);
             
             if (units != ""){// only refresh if there is units, others are text results
-                console.log("unit is not null");
+                log("unit is not null");
                 apex.item("P2_LINE_TD_NAME").setValue(id);
                 apex.item("P2_LINE_UNIT").setValue(units);
                 
@@ -235,7 +235,7 @@ cims_apex.cims = (function process(cimsUtil,$){
 
             Promise()
                 .then(function(data){
-                        console.log("promise resolved", data);
+                        log("promise resolved", data);
                         if (!data.success){
                             log("Promise resolved. error: ", data.message);
                         }else{
