@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   19:38 Wednesday October 21, 2020
+--   Date and Time:   20:31 Wednesday October 21, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -118,7 +118,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201021141455'
+,p_last_upd_yyyymmddhh24miss=>'20201021200101'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>231
 ,p_ui_type_name => null
@@ -794,7 +794,6 @@ wwv_flow_api.create_flow_process(
 '        wpg_docload.download_file(v_blob);           ',
 '',
 'END;'))
-,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'
 );
 end;
 /
@@ -807,58 +806,8 @@ wwv_flow_api.create_flow_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'CB_GET_PDF_P5'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'DECLARE',
-'    v_blob       BLOB;',
-'    v_mime_type  VARCHAR2(500);',
-'    v_temp       VARCHAR2(500);',
-'    v_file_type  VARCHAR2(50);',
-'BEGIN',
-'    -- Get Blob File',
-'    SELECT  SPF_REPORT AS blob_content ',
-'    INTO    v_blob        ',
-'    FROM    spool_frame@apex_link s, rept_req_test@apex_link r',
-'    WHERE   r.req_key = :p5_req_key',
-'    AND     r.rqt_key = :P5_RQT_KEY',
-'    AND     s.SPF_IS_LAB = ''F''',
-'    and     r.req_key = s.req_key',
-'    and     r.rpt_key = s.rpt_key      ',
-'    and     s.spf_report is not null',
-'    AND rownum = 1',
-'    ;',
-'    --',
-'    -- Try to determine mime type by reading the file',
-'    SELECT  UPPER(utl_raw.cast_to_varchar2(dbms_lob.substr(v_blob,255))),',
-'            dbms_lob.substr(v_blob,2,1) ',
-'    INTO    v_temp, v_file_type',
-'    FROM    dual;',
-'    ',
-'    IF v_file_type = ''2550'' OR INSTR(v_temp, ''PDF'') > 0 THEN ',
-'        v_mime_type := ''application/pdf'';',
-'    ELSIF INSTR(v_temp, ''RTF'') > 0 THEN',
-'        v_mime_type := ''application/rtf'';',
-'    ELSIF INSTR(v_temp, ''HTML'') > 0 THEN',
-'        v_mime_type := ''text/html'';',
-'    ELSIF v_file_type = ''D0CF'' THEN',
-'        v_mime_type := ''application/msword'';   ',
-'    ELSIF v_file_type = ''504B'' THEN ',
-'        v_mime_type := ''application/vnd.openxmlformats-officedocument.wordprocessingml.document'';',
-'    ELSE ',
-'        v_mime_type :=''application/octet-stream'';        ',
-'    END IF;',
-'    ',
-'    ',
-'    --',
-'    htp.flush;',
-'    htp.init;',
-'    owa_util.mime_header(v_mime_type,false);',
-'    htp.p(''Content-Length: '' || dbms_lob.getlength(v_blob));',
-'    owa_util.http_header_close; ',
-'    -- htp.p( ''Content-Disposition: inline; filename="''||''report''||''.pdf"'' );  ',
-'    --htp.p(''Set-Cookie: fileDownload=true; path=/'');',
-'         ',
-'    wpg_docload.download_file(v_blob);',
-'END;'))
-,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'
+'cims_apex_ctl_pkg.CB_GET_REPORT(p_req_key => :P5_REQ_KEY,',
+'                                p_rqt_key => :P5_RQT_KEY);'))
 );
 end;
 /

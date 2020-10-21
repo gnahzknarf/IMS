@@ -260,5 +260,85 @@ REM ***************************************************************************/
 
         return l_result;
     
-    end apex_error_handler;
+    END apex_error_handler;
+    --
+    /***************************************************************************************************************************
+    ** PROCEDURE: CB_GET_REPORT
+    ** This procedure is called in application AJAX process CB_GET_REPORT, to get the report PDF and render that on APEX page
+    ** It also populate an audit record by calling API AUDIT_PACKAGE.Audit_report_result2. Parameter pSpfReport(BLOB type) is 
+    ** NOT used in the API, NULL is passed in this procedure.
+    ***************************************************************************************************************************/        
+    PROCEDURE CB_GET_REPORT(p_req_key IN NUMBER,
+                            p_rqt_key IN NUMBER)
+    IS                        
+        v_blob              BLOB;
+        v_mime_type         VARCHAR2(500);
+        v_temp              VARCHAR2(500);
+        v_file_type         VARCHAR2(50);
+        v_spf_key           NUMBER;
+        v_spf_report_format VARCHAR2(50);
+    BEGIN
+        -- Get Blob File
+        SELECT  SPF_REPORT AS blob_content,
+                SPF_KEY,
+                SPF_REPORT_FORMAT
+        INTO    v_blob,
+                v_spf_key,
+                v_spf_report_format        
+        FROM    spool_frame@apex_link s, 
+                rept_req_test@apex_link r
+        WHERE   r.req_key = p_req_key
+        AND     r.rqt_key = p_rqt_key
+        AND     s.SPF_IS_LAB = 'F'
+        and     r.req_key = s.req_key
+        and     r.rpt_key = s.rpt_key      
+        and     s.spf_report is not null
+        AND     rownum = 1
+        ;
+        --
+        -- Try to determine mime type by reading the file
+        SELECT  UPPER(utl_raw.cast_to_varchar2(dbms_lob.substr(v_blob,255))),
+                dbms_lob.substr(v_blob,2,1) 
+        INTO    v_temp, 
+                v_file_type
+        FROM    dual;
+        
+        IF v_file_type = '2550' OR INSTR(v_temp, 'PDF') > 0 THEN 
+            v_mime_type := 'application/pdf';
+        ELSIF INSTR(v_temp, 'RTF') > 0 THEN
+            v_mime_type := 'application/rtf';
+        ELSIF INSTR(v_temp, 'HTML') > 0 THEN
+            v_mime_type := 'text/html';
+        ELSIF v_file_type = 'D0CF' THEN
+            v_mime_type := 'application/msword';   
+        ELSIF v_file_type = '504B' THEN 
+            v_mime_type := 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        ELSE 
+            v_mime_type :='application/octet-stream';        
+        END IF;
+        -- Display PDF
+        htp.flush;
+        htp.init;
+        owa_util.mime_header(v_mime_type,false);
+        htp.p('Content-Length: ' || dbms_lob.getlength(v_blob));
+        owa_util.http_header_close; 
+        -- htp.p( 'Content-Disposition: inline; filename="'||'report'||'.pdf"' );  
+        --htp.p('Set-Cookie: fileDownload=true; path=/');            
+        wpg_docload.download_file(v_blob);
+
+        -- Audit 
+        ILMS5.AUDIT_PACKAGE.AUDIT_REPORT_RESULT2@apex_link(
+                    pSpfKey             => v_spf_key,
+                    pReqKey             => p_req_key,
+                    pRptKey             => p_rqt_key,
+                    pSpfReportFormat    => v_spf_report_format,
+                    pSpfReport          => NULL,
+                    p_OSUSER            => V('APP_USER'), -- Windows Logon User = APP_USER
+                    p_HOST              => owa_util.get_cgi_env ('REMOTE_ADDR'),
+                    p_SessionUser       => NULL-- DBLOGON_USER,doctor/user ID passed from url 
+                    ); 
+    EXCEPTION 
+        WHEN others THEN    
+            NULL;    
+    END CB_GET_REPORT;    
 END cims_apex_ctl_pkg;
