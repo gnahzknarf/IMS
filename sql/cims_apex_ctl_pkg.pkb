@@ -335,7 +335,8 @@ REM ***************************************************************************/
                     pSpfReport          => NULL,
                     p_OSUSER            => V('APP_USER'), -- Windows Logon User = APP_USER
                     p_HOST              => owa_util.get_cgi_env ('REMOTE_ADDR'),
-                    p_SessionUser       => NULL-- DBLOGON_USER,doctor/user ID passed from url 
+                    p_SessionUser       => NULL,-- DBLOGON_USER,doctor/user ID passed from url 
+                    p_Action            => 2
                     ); 
     EXCEPTION 
         WHEN others THEN    
