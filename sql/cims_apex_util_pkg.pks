@@ -11,4 +11,5 @@ FUNCTION log_error(p_error in apex_error.t_error)
 RETURN NUMBER;
 
 FUNCTION sentry return boolean;
+--
 END cims_apex_util_pkg;

@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY cims_apex_util_pkg AS
-/**************************************************************************
-REM Change History Information
-REM --------------------------
-REM Version   Date         Author           Change Reference / Description
-REM -------   -----------  ---------------  ------------------------------------
-REM 1.0       18-OCT-2020  Frank Zhang      Initial Creation
-REM ***************************************************************************/
+    /**************************************************************************
+    REM Change History Information
+    REM --------------------------
+    REM Version   Date         Author           Change Reference / Description
+    REM -------   -----------  ---------------  ------------------------------------
+    REM 1.0       18-OCT-2020  Frank Zhang      Initial Creation
+    REM ***************************************************************************/
     
     /***************************************************************************************************************************
     ** FUNCTION: log_error
@@ -69,79 +69,181 @@ REM ***************************************************************************/
             return null;        
     END log_error;
     --
-
-    FUNCTION sentry return boolean
+    /***************************************************************************************************************************
+    ** FUNCTION: sentry
+    ** This FUNCTION is called during authentication process, to decode and validate the JWT token passed in the URL
+    ** After validation, application items are set with parameters in the token
+    ***************************************************************************************************************************/
+    FUNCTION sentry RETURN BOOLEAN
     IS   
       
-        l_x01      varchar2(32767);
-        l_jwt      apex_jwt.t_token;
-        l_jwt_user varchar2(255);
-        l_jwt_elts apex_t_varchar2;
+        l_x01           VARCHAR2(32767);
+        l_jwt           apex_jwt.t_token;
+        l_jwt_user      VARCHAR2(255);
+        l_jwt_osuser    VARCHAR2(255);
+        l_jwt_mrn       VARCHAR2(255);
+        l_session       NUMBER;
+        l_url           VARCHAR2(4000); 
+        l_default_key   VARCHAR2(4000):='-5qMahjEc6f2D_hH-NjQMvTibZaVRVDNrG2WX14Rp_4e9UlFELoXq3VpTVNi1yrI9nhVEX6Q25OMAF4q2L2l2zJeV0nJak3Fgo92CmqnfbvsQY1emqojZOhbcBxXP6LhWU2gXNvQZBRCoBOHiJjMsBKqrt2Q5F1e7hQKsDd3TzbnprbbpGtppqXcnWhuk2496hED21zuxN9Sgh_9UFTCiaKV9pO_CXTYDfjD5oGfHy_66DqBk9SNpoI-XPvzGEpUq0URRjIg5S7fdcG7AEIjO9jArhKnC_1zInugGH5S7TWNiL70VGdhtd0DwJCjbV9vGytpTgt3Xuw1fTVOXu20-A';
+        l_default_iss   VARCHAR2(50):= 'PPUKM';
+    BEGIN    
+        APEX_DEBUG.ENABLE(apex_debug.c_log_level_warn);
         
-        l_url      varchar2(4000); 
+        if apex_application.g_user <> 'nobody' then
+            return true;
+        end if;
 
-    begin
         --
-        -- parse JWT payload in X01
+        -- Get JWT Token in X01
         --
         l_x01 := v('APP_AJAX_X01');
-        apex_debug.warn('CIMS X01=%s', l_x01);
-        if l_x01 like '%.%.%' then
-            begin
+        apex_debug.warn('CIMS JWT Token=%s', l_x01);        
+        --
+        -- Decode and Validate JWT Token
+        --
+        IF l_x01 LIKE '%.%.%' THEN
+            BEGIN
                 l_jwt := apex_jwt.decode (
                                             p_value         => l_x01,
-                                            p_signature_key => sys.utl_raw.cast_to_raw('kYedRDkPvEOJLFFOn66vjiS-pjeCwk7uNX4QbgrhdrnGVb86saIEhvt3CW__CQAPqrHCLFrYo620lbJUo5MHE2Di8Z53lDd_RRyTdeMVhdulECPCY5_yUH3PKxzvNv23iP6knZmYrO1qARiEASphryaGr28PL6nkTl2Tjce4Sbfnbwi7hWl9Wb-9Xia6ICIyklU8aeoQU1tMxxZyDWj37dbWSld155LzkBGAIwlVBM2CPqIwmC22U3TOPL4w-xtyg18AM-Zl3nnWK8XqF-z5yR7lAOT1_11lDYaIcFO71MMknTZhy9gejxVUVL1jMd1FHP6BW5sLcDLMGBIMw10a7g') 
+                                            p_signature_key => sys.utl_raw.cast_to_raw(l_default_key) 
                                         );                
                 apex_debug.warn('CIMS JWT payload=%s', l_jwt.payload);
                 --
                 apex_jwt.validate (
                                     p_token => l_jwt,
-                                    p_iss   => 'other_app',
+                                    p_iss   => l_default_iss,
                                     p_aud   => 'CIMS',
-                                    p_leeway_seconds => 60 );
+                                    p_leeway_seconds => 300 );
+                
+                apex_debug.warn('CIMS ...validated');
+
+            EXCEPTION 
+                WHEN OTHERS THEN
+                    apex_debug.warn('CIMS Unable to validate JTW Token...error: %s', sqlerrm);
+                    RETURN FALSE;
+            END;
+        ELSE
+            apex_debug.warn('CIMS Incorrect JTW Token format...');
+                    
+            RETURN FALSE;
+        END IF;
+        --
+        -- Token is valid, get additional parameters
+        -- This procedure parses a JSON-formatted p_source and puts the members into the package global g_values
+        apex_json.parse (p_source => l_jwt.payload );
+        
+        -- g_values is a table of records, value can be retrieved simialar to name value pair
+        l_jwt_user      := apex_json.get_varchar2(p_path=>'p_user');
+        l_jwt_osuser    := apex_json.get_varchar2(p_path=>'p_os_user');
+        l_jwt_mrn       := apex_json.get_varchar2(p_path=>'p_mrn');
+        apex_debug.warn('CIMS jwt_user=%s, jwt_os_user=%s, jwt_mrn=%s...',l_jwt_user,l_jwt_osuser,l_jwt_mrn);
+        
+        -- is there already a session?
+        l_session := APEX_CUSTOM_AUTH.GET_SESSION_ID_FROM_COOKIE;
+
+        IF l_session IS NOT NULL THEN
+            -- test if the session is still valid and get a new session id, if not valid
+            IF NOT APEX_CUSTOM_AUTH.IS_SESSION_VALID THEN
+                l_session := APEX_CUSTOM_AUTH.GET_NEXT_SESSION_ID;
+            END IF;
+            -- initialize the session
+            APEX_CUSTOM_AUTH.DEFINE_USER_SESSION (l_jwt_user, l_session);   
+        ELSE
+            -- no session in cookie found
+            apex_authentication.post_login (p_username => l_jwt_user );
+        END IF;
+     
+        -- Set Application Items
+        APEX_UTIL.SET_SESSION_STATE('G_OS_USER',l_jwt_osuser);
+        APEX_UTIL.SET_SESSION_STATE('G_MRN',l_jwt_mrn);
+        
+        -- Redirect to Page 6        
+        IF l_jwt_mrn IS NOT NULL THEN
+            l_url := APEX_PAGE.GET_URL (
+                                        p_page   => 6,
+                                        p_items  => 'P6_MRN',
+                                        p_values => l_jwt_mrn );
+            apex_util.redirect_url(l_url);
+        END IF;
+        --
+        APEX_DEBUG.DISABLE();
+        return true;      
+    end sentry;
+    --
+    PROCEDURE TOKEN_INVALID_SESSION IS
+          
+        l_x01           VARCHAR2(32767);
+        l_jwt           apex_jwt.t_token;
+        l_jwt_user      VARCHAR2(255);
+        l_jwt_osuser    VARCHAR2(255);
+        l_jwt_mrn       VARCHAR2(255);
+        l_session       NUMBER;
+        l_url           VARCHAR2(4000); 
+        l_default_key   VARCHAR2(4000):='-5qMahjEc6f2D_hH-NjQMvTibZaVRVDNrG2WX14Rp_4e9UlFELoXq3VpTVNi1yrI9nhVEX6Q25OMAF4q2L2l2zJeV0nJak3Fgo92CmqnfbvsQY1emqojZOhbcBxXP6LhWU2gXNvQZBRCoBOHiJjMsBKqrt2Q5F1e7hQKsDd3TzbnprbbpGtppqXcnWhuk2496hED21zuxN9Sgh_9UFTCiaKV9pO_CXTYDfjD5oGfHy_66DqBk9SNpoI-XPvzGEpUq0URRjIg5S7fdcG7AEIjO9jArhKnC_1zInugGH5S7TWNiL70VGdhtd0DwJCjbV9vGytpTgt3Xuw1fTVOXu20-A';
+        l_default_iss   VARCHAR2(50):= 'PPUKM';
+    BEGIN
+        APEX_DEBUG.ENABLE(apex_debug.c_log_level_warn);    
+        apex_debug.warn('CIMS Begin Token Invalid Session');
+--
+        -- Get JWT Token in X01
+        --
+        l_x01 := v('APP_AJAX_X01');
+        apex_debug.warn('CIMS JWT Token=%s', l_x01);        
+        --
+        -- Decode and Validate JWT Token
+        --
+        IF l_x01 LIKE '%.%.%' THEN
+            BEGIN
+                l_jwt := apex_jwt.decode (
+                                            p_value         => l_x01,
+                                            p_signature_key => sys.utl_raw.cast_to_raw(l_default_key) 
+                                        );                
+                apex_debug.warn('CIMS JWT payload=%s', l_jwt.payload);
+                --
+                apex_jwt.validate (
+                                    p_token => l_jwt,
+                                    p_iss   => l_default_iss,
+                                    p_aud   => 'CIMS',
+                                    p_leeway_seconds => 300 );
                 
                 apex_debug.warn('CIMS ...validated');
                 --
+                -- Token is valid, get additional parameters
+                -- This procedure parses a JSON-formatted p_source and puts the members into the package global g_values
                 apex_json.parse (p_source => l_jwt.payload );
-                l_jwt_user := apex_json.get_varchar2('sub');
-            exception 
-                when others then
-                    apex_debug.warn('CIMS ...error: %s', sqlerrm);
-            end;
-        end if;
-        --
-        -- if not logged in yet:
-        -- - log in with JWT user if JWT given
-        -- - or trigger custom invalid session/login flow
-        --
-        if apex_authentication.is_public_user then
-            if l_jwt_user is not null then
+                
+                -- g_values is a table of records, value can be retrieved simialar to name value pair
+                l_jwt_user      := apex_json.get_varchar2(p_path=>'p_user');
+                l_jwt_osuser    := apex_json.get_varchar2(p_path=>'p_os_user');
+                l_jwt_mrn       := apex_json.get_varchar2(p_path=>'p_mrn');
+                apex_debug.warn('CIMS jwt_user=%s, jwt_os_user=%s, jwt_mrn=%s...',l_jwt_user,l_jwt_osuser,l_jwt_mrn);
+                
                 apex_authentication.post_login (p_username => l_jwt_user );
-            else
-                return false;
-            end if;
-        elsif apex_application.g_user <> l_jwt_user then
-            apex_debug.warn('CIMS ...login user %s does not match JWT user %s',
-                            apex_application.g_user,
-                            l_jwt_user );
-            return false;
-        end if;
-        --
-        -- if JWT given, assign additional parameters to items
-        --
-        if l_jwt_user is not null then
-            l_jwt_elts := apex_json.get_members('.');
-            for i in 1 .. l_jwt_elts.count loop
-                if l_jwt_elts(i) = 'P6_MRN' then
-                    l_url := APEX_PAGE.GET_URL (
-                                                    p_page   => 6,
-                                                    p_items  => 'P6_MRN',
-                                                    p_values => apex_json.get_varchar2(l_jwt_elts(i)) );
 
-                end if;
-            end loop;
-            apex_util.redirect_url(l_url);
-        end if;
-        return true;      
-    end sentry;
+                -- Set Application Items
+                APEX_UTIL.SET_SESSION_STATE('G_OS_USER',l_jwt_osuser);
+                APEX_UTIL.SET_SESSION_STATE('G_MRN',l_jwt_mrn);
+                
+                -- Redirect to Page 6        
+                IF l_jwt_mrn IS NOT NULL THEN
+                    l_url := APEX_PAGE.GET_URL (
+                                                p_page   => 6,
+                                                p_items  => 'P6_MRN',
+                                                p_values => l_jwt_mrn );
+                    apex_util.redirect_url(l_url);
+                END IF;                    
+            EXCEPTION 
+                WHEN OTHERS THEN
+                    apex_debug.warn('CIMS Unable to validate JTW Token...error: %s', sqlerrm);
+
+            END;
+        ELSE
+            apex_debug.warn('CIMS Incorrect JTW Token format...');
+  
+        END IF;
+        
+        
+        APEX_DEBUG.DISABLE();
+    END TOKEN_INVALID_SESSION;
+    
 END cims_apex_util_pkg;
