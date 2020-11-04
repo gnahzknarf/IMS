@@ -1,5 +1,9 @@
 CREATE OR REPLACE PACKAGE cims_apex_ctl_pkg AS
-/**************************************************************************
+/*******************************************************************************
+REM
+REM (C) Copyright - Integrated Medical Technology Pty Ltd. 1993 - 2020. All rights reserved.
+REM 
+REM
 REM Change History Information
 REM --------------------------
 REM Version   Date         Author           Change Reference / Description

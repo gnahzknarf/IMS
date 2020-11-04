@@ -1,4 +1,6 @@
 /**
+ *   (C) Copyright - Integrated Medical Technology Pty Ltd. 1993 - 2020. All rights reserved.
+ *
  * @desc Top-level namespace. DO NOT CHANGE
  * @namespace cims_apex
 **/

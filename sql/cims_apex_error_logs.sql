@@ -2,6 +2,12 @@ CREATE SEQUENCE CIMS_APEX_ERROR_LOG_ID;
 /
 
 CREATE TABLE CIMS_APEX_ERROR_LOGS(
+/*******************************************************************************
+REM
+REM (C) Copyright - Integrated Medical Technology Pty Ltd. 1993 - 2020. All rights reserved.
+REM 
+REM
+REM ***************************************************************************/
     log_id                   number DEFAULT ON NULL CIMS_APEX_ERROR_LOG_ID.nextval primary key,
     message                  varchar2(4000),     /* Error message which will be displayed */
     additional_info          varchar2(4000),     /* Only used for display_location ON_ERROR_PAGE to display additional error information */
