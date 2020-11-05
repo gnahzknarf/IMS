@@ -28,7 +28,7 @@ prompt APPLICATION 101 - DEMO
 -- Application Export:
 --   Application:     101
 --   Name:            DEMO
---   Date and Time:   20:31 Wednesday October 21, 2020
+--   Date and Time:   15:26 Thursday November 5, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -118,7 +118,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'DEMO'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201021200101'
+,p_last_upd_yyyymmddhh24miss=>'20201105142958'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>231
 ,p_ui_type_name => null
@@ -15686,7 +15686,7 @@ wwv_flow_api.create_page(
 ,p_dialog_width=>'1200'
 ,p_page_is_public_y_n=>'Y'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201021141455'
+,p_last_upd_yyyymmddhh24miss=>'20201105142958'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2144239822194417)
@@ -17720,12 +17720,12 @@ wwv_flow_api.create_page_process(
 ,p_process_name=>'CB_POPULATE_CUMULATIVE_COLLECTION'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'BEGIN',
-'    cims_apex_ctl_pkg.cb_populate_cumulative_collection(',
-'                                                        p_req_key    => apex_application.g_x01,',
-'                                                        p_rqt_key    => apex_application.g_x02,',
-'                                                        p_date_from  => apex_application.g_x03,',
-'                                                        p_date_to    => apex_application.g_x04',
-'                                                    );',
+'    cims_apex_ctl_pkg.cb_set_cumulative_coll(',
+'                                                p_req_key    => apex_application.g_x01,',
+'                                                p_rqt_key    => apex_application.g_x02,',
+'                                                p_date_from  => apex_application.g_x03,',
+'                                                p_date_to    => apex_application.g_x04',
+'                                            );',
 'END;    '))
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );

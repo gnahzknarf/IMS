@@ -1,5 +1,5 @@
 CREATE OR REPLACE PACKAGE BODY cims_apex_util_pkg AS
-    /*******************************************************************************
+    /*******************************************************************************************
     REM
     REM (C) Copyright - Integrated Medical Technology Pty Ltd. 1993 - 2020. All rights reserved.
     REM 
@@ -9,7 +9,8 @@ CREATE OR REPLACE PACKAGE BODY cims_apex_util_pkg AS
     REM Version   Date         Author           Change Reference / Description
     REM -------   -----------  ---------------  ------------------------------------
     REM 1.0       18-OCT-2020  Frank Zhang      Initial Creation
-    REM ***************************************************************************/
+    REM 
+    *******************************************************************************************/
     
     /***************************************************************************************************************************
     ** FUNCTION: log_error
@@ -145,7 +146,11 @@ CREATE OR REPLACE PACKAGE BODY cims_apex_util_pkg AS
         
         -- is there already a session?
         l_session := APEX_CUSTOM_AUTH.GET_SESSION_ID_FROM_COOKIE;
+        
+        apex_debug.warn('CIMS l_session=%s...',l_session);
 
+        apex_authentication.post_login (p_username => l_jwt_user );
+        /*
         IF l_session IS NOT NULL THEN
             -- test if the session is still valid and get a new session id, if not valid
             IF NOT APEX_CUSTOM_AUTH.IS_SESSION_VALID THEN
@@ -157,7 +162,7 @@ CREATE OR REPLACE PACKAGE BODY cims_apex_util_pkg AS
             -- no session in cookie found
             apex_authentication.post_login (p_username => l_jwt_user );
         END IF;
-     
+        */
         -- Set Application Items
         APEX_UTIL.SET_SESSION_STATE('G_OS_USER',l_jwt_osuser);
         APEX_UTIL.SET_SESSION_STATE('G_MRN',l_jwt_mrn);

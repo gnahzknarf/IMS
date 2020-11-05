@@ -1,5 +1,5 @@
 CREATE OR REPLACE PACKAGE cims_apex_ctl_pkg AS
-/*******************************************************************************
+/******************************************************************************************
 REM
 REM (C) Copyright - Integrated Medical Technology Pty Ltd. 1993 - 2020. All rights reserved.
 REM 
@@ -9,8 +9,9 @@ REM --------------------------
 REM Version   Date         Author           Change Reference / Description
 REM -------   -----------  ---------------  ------------------------------------
 REM 1.0       30-SEP-2020  Frank Zhang      Initial Creation
-REM ***************************************************************************/
-    PROCEDURE cb_populate_cumulative_collection(
+REM 
+*******************************************************************************************/
+    PROCEDURE cb_set_cumulative_coll(
         p_req_key    IN  NUMBER,
         p_rqt_key    IN  NUMBER,
         p_date_from  IN  VARCHAR2,

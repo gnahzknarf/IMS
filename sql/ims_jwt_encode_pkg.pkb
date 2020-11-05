@@ -33,7 +33,8 @@ END encrypt;
 --
 FUNCTION get_issue_at RETURN NUMBER IS
 BEGIN 
-    RETURN (SYSDATE - to_date('01/01/1970 00:00:00','DD/MM/YYYY HH24:Mi:SS'))*24*60*60;
+    --RETURN (SYSDATE - to_date('01/01/1970 00:00:00','DD/MM/YYYY HH24:Mi:SS'))*24*60*60;
+    RETURN (CAST((SYSTIMESTAMP AT TIME ZONE 'UTC') AS DATE) - DATE'1970-01-01') * 24*60*60;
 END get_issue_at;
 --
 FUNCTION get_cims_url_with_token(
