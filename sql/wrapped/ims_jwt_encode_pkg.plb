@@ -1,6 +1,11 @@
-CREATE OR REPLACE PACKAGE BODY ims_jwt_encode_pkg wrapped 
+/*******************************************************************************************
+REM
+REM (C) Copyright - Integrated Medical Technology Pty Ltd. 1993 - 2020. All rights reserved.
+REM 
+*******************************************************************************************/
+create or replace PACKAGE BODY ims_jwt_encode_pkg wrapped 
 a000000
-1
+369
 abcd
 abcd
 abcd
@@ -17,29 +22,33 @@ abcd
 abcd
 abcd
 b
-f5d 686
-i/QlqR3Ym50KjS6gzJnW7FUkxC4wg2PqMUgGWo6QF7xR22oEvwdfUqnjYIgmS5kLpUBMyfRg
-wsqKod1+KRTX5PiJH6WrQPXyb7S8Bb7E/EHF9sj2Nfs37Jf+Nxb9KwNtYhq4xdBWO2ymEZEV
-jEjFdm9cRM7FKhEOwH+wkzk86emmUeF7acGraRfeDu9+/K+ZyqtYq9OibB2FpQJUBxioNV/A
-raTe011p/9vxY2q5Kluyfjg9e4OY4Za5DR+xqvJUyPi2FOzoZE3aGOThXvP6mHaBc2SYqgRA
-iFck7xjnTTTpsz10Cc4Rhz0RFSMPajXlr+dsEI37CDV0ojU3FLqRDWkkyaYwwwfoRjfg8gkl
-dTlYicV70/plL5+kQfxe4ARFnjSrHeqh2EkVbUD9no85CeQwNwosvxpvYw16dWJQhEIVmzzY
-9+pveTpEcgf+1koZ7o3w3Z8SAlFIupVSlc/l7949upr1fmjMiwLE8FST/3tN6kgDbFxAgQbs
-jbRJM+2tuXzZi48I6CJMXFS5Qu1udA9hzT845DSHYrk9MaVrM4PrlyXY9sLrQZslvGQpaOXo
-34vXAjQ7DTwTpAXRPZmGBZOYDUOAeM4QU6B4amtiin4SVRJUnxf4gGFUPnIvcm8Z/mTylXX/
-2BiTxmjPUPzDfj0GI1Nyrm/P3mxZqyArvkdk9tCUhC3q4Lyw7TSZhd+xXyYemVKjZUhJjFvu
-b2ZSaytvuIL2Yq0KpdHR/l5rNRpTCkdjuujvX8mY82q1fsBtOLCbZjTNfnpVVdIzJJm2aMwS
-Eqf6hOX8b/2hOfIKI36nzwHCHJVFvyy5WBG7ELTRYJpTi/YaY1UCCofZyNqaPurKSCXK36ez
-cAwBJQA+6LB2WpxEsl20QLqAyntROHWFrM511uCXKhpPFvsU8UetUsDc01SJ9zdr2PvguXqp
-Elw1qWV/gLNGDqaufdY5Qv5PxcNIWHpeyh/zPx1+CLpYqJxb0V8USsjHtHJ3bArVBjmhSwKJ
-ccKottcuVtHorEYtWdMuKkpQFWxBw6xVykRzRbDIE2TgZnaMuqt3a37P17faF5KtWYnoWGJY
-RduTXyiWiwa0V4DXsjY6uJTtUvxH5vQvDWTlr7wa5vnvPWZqNkVJXR99IxSvxg5usfDgrWT9
-lfHiHt/zph9Di7EZrBuW8QQW6AzFi7nc3JzT0bL/87MY2sWdZ5+lIdf5pjFANXXVEkTCmHgF
-QhsXE4qdwyp+v1kxKtLpSVJd1FUMcwJ9flHF3H4aGeNXshzLW2c3is+YMshp/4b6Ve5nASYn
-L8VZ5Clw/2huva7Ff7TQaM4HhMJdHF9yI24on9uME8ji7J5PmbdWkAa5quTwD5C+UQlVN7uP
-1NpdcWnnvxV2QPByb1P1ReerBSMZVnMYOrngAZK4wmjOgIf5VZSG5lR5O3OfNL1wdu0/npex
-UqI1z541UdHu7e7+NTpD59oMW8fUbWrnWLYVIYsUG7OCsfcg/3wRGPCWGozu4WYy95VR2qZk
-VYvyNjp19+20ucGe46pkaHOkSkKUzQLQYM/rFNzgZH3nCiPbtfrPCQGwyqi1GScbweKlxFnI
-453V+Basx7/1lJKj4u/C47XPAZ6/P4pLkJ1GSgfGiYRmWC7q1QjNcXOGJNV5aww=
+13d1 7a2
+iPPdxIPUMF2e0GoySlQvDFT9EYkwg0NUk64eYI65xz+VFigyaDn8BOfX6cPstLbG2y3wAP+s
+xfAVpwIMn1MfSJKaEtT9YYa4k4fFPeYwWMe8A0cxG98ro1TvTUgmECG8Dy36xCqYWIfX4iC0
+5EjjS7pah57H9OBY5dn1tyZT0I+VY7Qahd/OePIhBg6WsH1y/GsUkI6esnLDTUhY46N/CgoT
+njjbYYkbxTFfRdLhKWdrxL1wDXl3Pd7rqukfp6HIVGe4rUYjSliJXlBV5pARRSlkHrKOOL6F
+0nQdsxu9p9OKz+7btVp0nJHqDJ6f3j4lvetG06yAlDU2qsqUXmZRALXRwyfGJUHDNyRU5LIB
+c7YYZVxpuxrduzo/hTCXx3S5iJx7aH+kihYuioXegKIP64fnHybWLrGmRIR1ZZtZpLls7v4k
+3LWnFN7dtUyZ4Ii9Elln4Nh249zFXsbRJhwVgGBZlQn6ST2eLm1zHExImlX+Ta92aFXBEt2p
+ZdSaG67CNiPNWxjUo4vCivE2cjeTZtOVUJSTarfcs+cBLuoi5RVvJxs564e3BEzf9tPY0wc4
+XgHfuf1vK7c/Vp37qKfGoxoszzY2UKr+G6VyYEB/o5akhcY9C0tXt2De/G7Pl+Hm1LvA2Eu/
+oBEoYLbAXO2NXN8nuVi3TjPvpA+HdHvcgCqc7GjNXMuQrdo0JkIP/dt1gW9bkK3NdYaX6wlk
+LoCkJQpB2YAr/XjLH8Koqo1Pckh7JdJ+uL9QBP8nwsCddRmHIuL/+I0T+JV+wDjw0WT8mhKf
+PQQyAEK0gixylvxKZQq61wgxGu3lxG/ZDc8/d01odtD/utWBkqkiD9zB2dnZvmFBch/tCt6/
+0rhJLDzl71GXjcEHu8nXpEpU1/ZpAXoRMifHbT4Ag+ogSfyzWZh5Ii0nXEx3uyfirU8pEgD4
+CJPvxyCoQkqCsweAuQjNgY2fX/QiLSe2NHYN6J4Keh7rB2s8RlyDKsbULXez4oAe9qFzn+hZ
+0doNgM3eALBqgTW77rpDp5/YGdZWzTg1aMULrRPxMZf1rQZytS2Kz80lBdFOTUh8lSkFd4Mg
+C0PWWo+UgL1PrrUjYxR+SdhU+Q6ig8QPFMkus448Nsd1BUZRm8y9UumP02Utyrz9ThB2Onc4
+Ptc+nDEn5c4cN+DZuiTOnelHxI7DHOL0pkIPYnmEhcFl740hSxdpnfztRPrhVUx1EiLQiak6
+2NxpO6Tjo1vEVXKoKeIe7RGNBxS0YbEnmbsgcJh3kj7I455YKwcGKx8UeacLCkNE28wsP7Yt
+hHHi7gXjD2DWeC/VK5jwxNjYuqc1S/qZQh2EkK6Jfu9a06BeiASdYwQi0mJqQeWEshuIg++h
+XWU2QQLm5uPNVJ7Mvr1hwd9CLlmOcRNYBECGaBoDawAEHPpY02pMI1h4BljvXamTalGtThIj
+mGcFzgEDMYjRade9/OFZiuBK9EbC3ROP1V/mzLR+4Zl4/WvOlapOKnr6EY7drCJ3odEbElaq
+SnbnApbGA89R+U8jYc4Go/nRz9Sdj9RQnfQ330yUMHW1Z5WvsTgImcWSTCZUYJWB626dTzLe
+CCzukW1sEgQW6W3gxWy2Io4/FFYxP+N3Yr2GPfIWxlwrz/A+BxKluLJoBb1BB7YCyoV22DfV
+tRSjrN4WIvRtBq7wMEnKkqSkWtNZObtlx/+5nF6aLlCgtntsPsnVM0tFk5LDOIQZNYi3AREl
+k7cnDixaHKAx5BQMV+mj3D/Pu9QfMEtI611G9iG86AYq/Bcifi9QyNb4yPd/hImuMUE5Viza
+RJ0jqzNbsWcKm9rIwNyVqYlz0eh5vZKwICPKf98Af2PU0j9apVKCQgRgMZrQ5nect5N74lFP
+S1cvWviBmMOtlM4i6DrTnW/NdfCv00+ebw6RAphHiqefm9mdriCfDA==
 
 /
