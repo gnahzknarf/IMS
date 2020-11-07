@@ -149,20 +149,24 @@ CREATE OR REPLACE PACKAGE BODY cims_apex_util_pkg AS
         
         apex_debug.warn('CIMS l_session=%s...',l_session);
 
-        apex_authentication.post_login (p_username => l_jwt_user );
-        /*
+                
         IF l_session IS NOT NULL THEN
             -- test if the session is still valid and get a new session id, if not valid
-            IF NOT APEX_CUSTOM_AUTH.IS_SESSION_VALID THEN
+            IF NOT APEX_CUSTOM_AUTH.IS_SESSION_VALID THEN                
                 l_session := APEX_CUSTOM_AUTH.GET_NEXT_SESSION_ID;
+                apex_debug.warn('CIMS l_session is not valid. got new ssion=%s...',l_session);
+            ELSE
+                apex_debug.warn('CIMS l_session is still valid. ');
             END IF;
+
             -- initialize the session
-            APEX_CUSTOM_AUTH.DEFINE_USER_SESSION (l_jwt_user, l_session);   
+            APEX_CUSTOM_AUTH.post_login (p_uname => l_jwt_user,p_session_id => l_session );
+            --APEX_CUSTOM_AUTH.DEFINE_USER_SESSION (l_jwt_user, l_session);   
         ELSE
             -- no session in cookie found
             apex_authentication.post_login (p_username => l_jwt_user );
         END IF;
-        */
+        
         -- Set Application Items
         APEX_UTIL.SET_SESSION_STATE('G_OS_USER',l_jwt_osuser);
         APEX_UTIL.SET_SESSION_STATE('G_MRN',l_jwt_mrn);
@@ -179,5 +183,5 @@ CREATE OR REPLACE PACKAGE BODY cims_apex_util_pkg AS
         APEX_DEBUG.DISABLE();
         return true;      
     end sentry;
-    --    
+    --
 END cims_apex_util_pkg;

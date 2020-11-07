@@ -28,7 +28,7 @@ prompt APPLICATION 100 - CIMS
 -- Application Export:
 --   Application:     100
 --   Name:            CIMS
---   Date and Time:   14:03 Thursday November 5, 2020
+--   Date and Time:   13:48 Saturday November 7, 2020
 --   Exported By:     FRANK
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -89,6 +89,8 @@ wwv_flow_api.create_flow(
 ,p_page_protection_enabled_y_n=>'Y'
 ,p_checksum_salt=>'3B4ED68B395DF0F33D95187F44F5E18DF4726B027CA7ED00CA9E04D2373E2A66'
 ,p_bookmark_checksum_function=>'SH512'
+,p_max_session_length_sec=>86400
+,p_max_session_idle_sec=>1800
 ,p_compatibility_mode=>'19.2'
 ,p_flow_language=>'en'
 ,p_flow_language_derived_from=>'FLOW_PRIMARY_LANGUAGE'
@@ -103,6 +105,7 @@ wwv_flow_api.create_flow(
 ,p_authentication_id=>wwv_flow_api.id(20403672448971153)
 ,p_application_tab_set=>1
 ,p_app_builder_icon_name=>'app-icon.svg'
+,p_public_user=>'APEX_PUBLIC_USER'
 ,p_proxy_server=>nvl(wwv_flow_application_install.get_proxy,'')
 ,p_no_proxy_domains=>nvl(wwv_flow_application_install.get_no_proxy_domains,'')
 ,p_flow_version=>' '
@@ -119,7 +122,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'CIMS'
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201105140316'
+,p_last_upd_yyyymmddhh24miss=>'20201107130959'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>231
 ,p_ui_type_name => null
@@ -15443,6 +15446,7 @@ wwv_flow_api.create_page(
 '}',
 ''))
 ,p_page_template_options=>'#DEFAULT#'
+,p_required_role=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_page_comment=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '',
 '/* MRN Region*/',
@@ -15480,7 +15484,7 @@ wwv_flow_api.create_page(
 '',
 ''))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201012135710'
+,p_last_upd_yyyymmddhh24miss=>'20201107130855'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(27280147674440394)
@@ -15558,6 +15562,7 @@ wwv_flow_api.create_page_item(
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs'
 ,p_inline_help_text=>'Allied Health'
 ,p_attribute_01=>'URL'
+,p_attribute_02=>'Allied Health'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(29137641269835314)
@@ -15574,6 +15579,7 @@ wwv_flow_api.create_page_item(
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs'
 ,p_inline_help_text=>'Billing'
 ,p_attribute_01=>'URL'
+,p_attribute_02=>'Billing'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(29137782391835315)
@@ -15591,6 +15597,7 @@ wwv_flow_api.create_page_item(
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs'
 ,p_inline_help_text=>'Cardiology'
 ,p_attribute_01=>'URL'
+,p_attribute_02=>'Cardiology'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(29137842777835316)
@@ -15608,6 +15615,7 @@ wwv_flow_api.create_page_item(
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs'
 ,p_inline_help_text=>'Documents'
 ,p_attribute_01=>'URL'
+,p_attribute_02=>'Documents'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(29137915393835317)
@@ -15624,6 +15632,7 @@ wwv_flow_api.create_page_item(
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs'
 ,p_inline_help_text=>'Laboratory'
 ,p_attribute_01=>'URL'
+,p_attribute_02=>'Laboratory'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(29138076067835318)
@@ -15640,6 +15649,7 @@ wwv_flow_api.create_page_item(
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs'
 ,p_inline_help_text=>'Pharmacy'
 ,p_attribute_01=>'URL'
+,p_attribute_02=>'Pharmacy'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(29138126550835319)
@@ -15657,6 +15667,7 @@ wwv_flow_api.create_page_item(
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs'
 ,p_inline_help_text=>'Radiology'
 ,p_attribute_01=>'URL'
+,p_attribute_02=>'Radiology'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(29138230557835320)
@@ -15674,6 +15685,7 @@ wwv_flow_api.create_page_item(
 ,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs'
 ,p_inline_help_text=>'Vitals'
 ,p_attribute_01=>'URL'
+,p_attribute_02=>'Vitals'
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(29138337072835321)
@@ -17958,7 +17970,7 @@ wwv_flow_api.create_page(
 '',
 '$("img.fancytree-icon").before(''<img src="cims/r/files/static/v18/Laboratory.bmp" class="fancytree-icon" alt="">'')'))
 ,p_last_updated_by=>'FRANK'
-,p_last_upd_yyyymmddhh24miss=>'20201025103636'
+,p_last_upd_yyyymmddhh24miss=>'20201107130959'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(28615315326691899)
@@ -18781,6 +18793,7 @@ wwv_flow_api.create_page_item(
 ,p_name=>'P6_TREE_SEARCH'
 ,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(28615254718691898)
+,p_prompt=>'Search'
 ,p_display_as=>'NATIVE_TEXT_FIELD'
 ,p_cSize=>30
 ,p_field_template=>wwv_flow_api.id(38688041002650592688)

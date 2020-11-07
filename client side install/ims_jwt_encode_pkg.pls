@@ -3,7 +3,7 @@ REM
 REM (C) Copyright - Integrated Medical Technology Pty Ltd. 1993 - 2020. All rights reserved.
 REM 
 *******************************************************************************************/
-CREATE OR REPLACE PACKAGE ims_jwt_encode_pkg wrapped 
+create or replace PACKAGE ims_jwt_encode_pkg wrapped 
 a000000
 1
 abcd
