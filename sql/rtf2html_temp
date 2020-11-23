@@ -1,0 +1,7 @@
+CREATE GLOBAL TEMPORARY TABLE RTF2HTML_TEMP
+(
+req_key         NUMBER,
+rqt_key         NUMBER,
+html_content    CLOB,
+creation_date   DATE DEFAULT SYSDATE
+);
