@@ -3,7 +3,7 @@ REM
 REM (C) Copyright - Integrated Medical Technology Pty Ltd. 1993 - 2020. All rights reserved.
 REM 
 *******************************************************************************************/
-CREATE OR REPLACE PACKAGE BODY "CIMS"."CIMS_APEX_CTL_PKG" 
+create or replace PACKAGE BODY        "CIMS_APEX_CTL_PKG" 
 wrapped 
 a000000 
 369 
